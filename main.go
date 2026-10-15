@@ -34,9 +34,9 @@ func main() {
 	h := hub.New(reg)
 	br := bridge.New()
 	h.SetBridge(br)
-	mux.Handle("/bridge", br)
 
 	mux := http.NewServeMux()
+	mux.Handle("/bridge", br)
 	mux.Handle("/ws", h)
 	mux.HandleFunc("/files/", storage.ProxyHandler)
 	mux.Handle("/", http.FileServer(http.Dir("/app/web")))
