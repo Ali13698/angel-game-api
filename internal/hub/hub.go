@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/angel/angel/internal/bridge"
 	"github.com/angel/angel/internal/core/types"
 	"github.com/angel/angel/internal/registry"
 	"github.com/angel/angel/internal/room"
@@ -32,6 +33,7 @@ type client struct {
 
 type Hub struct {
 	reg *registry.Registry
+	br  *bridge.Bridge
 
 	mu      sync.Mutex
 	clients map[*client]struct{}
@@ -49,6 +51,8 @@ func New(reg *registry.Registry) *Hub {
 		done:    make(chan struct{}),
 	}
 }
+
+func (h *Hub) SetBridge(br *bridge.Bridge) { h.br = br }
 
 func (h *Hub) OpenRoom(gameID types.GameID, players []types.UserID) (*room.Room, error) {
 	w := &wireRoom{h: h}
@@ -258,6 +262,9 @@ func (c *client) writeLoop() {
 type wireRoom struct{ h *Hub }
 
 func (w *wireRoom) Broadcast(frame []byte) {
+	if w.h.br != nil {
+		w.h.br.PushRaw(frame)
+	}
 	w.h.mu.Lock()
 	clients := make([]*client, 0, len(w.h.clients))
 	for c := range w.h.clients {

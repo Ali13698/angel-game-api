@@ -11,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/angel/angel/internal/bridge"
 	"github.com/angel/angel/internal/core/types"
 	"github.com/angel/angel/internal/games/echo"
 	"github.com/angel/angel/internal/games/ludo"
@@ -31,6 +32,9 @@ func main() {
 	}
 
 	h := hub.New(reg)
+	br := bridge.New()
+	h.SetBridge(br)
+	mux.Handle("/bridge", br)
 
 	mux := http.NewServeMux()
 	mux.Handle("/ws", h)
