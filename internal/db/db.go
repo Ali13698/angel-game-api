@@ -25,6 +25,12 @@ func Init(ctx context.Context) error {
 	pass := first(os.Getenv("PostgreSQL2"), os.Getenv("PostgreSQL"), "")
 	name := first(os.Getenv("POSTGRES_DB"), "angel-dbhs1_db")
 
+	log.Printf("[db] env: BOT_PGF=%q BRP_HOST=%q PGUSER=%q DB=%q",
+		os.Getenv("ANGEL_BOT_PGF_SERVICE_SERVICE_HOST"),
+		os.Getenv("ANGEL_DB_BRP_SERVICE_SERVICE_HOST"),
+		os.Getenv("PGUSER"),
+		os.Getenv("POSTGRES_DB"))
+
 	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", user, pass, host, port, name)
 	log.Printf("[db] connecting to %s:%s/%s user=%s passlen=%d", host, port, name, user, len(pass))
 
