@@ -13,8 +13,14 @@ import (
 var pool *pgxpool.Pool
 
 func Init(ctx context.Context) error {
-	host := first(os.Getenv("ANGEL_DB_BRP_SERVICE_SERVICE_HOST"), "10.111.160.131")
-	port := first(os.Getenv("ANGEL_DB_BRP_SERVICE_SERVICE_PORT"), "5432")
+	host := first(
+		os.Getenv("ANGEL_BOT_PGF_SERVICE_SERVICE_HOST"),
+		os.Getenv("ANGEL_DB_BRP_SERVICE_SERVICE_HOST"),
+		"10.98.159.199")
+	port := first(
+		os.Getenv("ANGEL_BOT_PGF_SERVICE_SERVICE_PORT"),
+		os.Getenv("ANGEL_DB_BRP_SERVICE_SERVICE_PORT"),
+		"5432")
 	user := first(os.Getenv("PGUSER"), "postgres")
 	pass := first(os.Getenv("PostgreSQL2"), os.Getenv("PostgreSQL"), "")
 	name := first(os.Getenv("POSTGRES_DB"), "angel-dbhs1_db")
