@@ -14,13 +14,11 @@ var pool *pgxpool.Pool
 
 func Init(ctx context.Context) error {
 	host := first(
-		os.Getenv("PG_HOST_OVERRIDE"),
-		os.Getenv("ANGEL_BOT_PGF_SERVICE_SERVICE_HOST"),
-		os.Getenv("ANGEL_DB_BRP_SERVICE_SERVICE_HOST"),
-		"10.98.159.199")
+		os.Getenv("PG_HOST"),
+		"angel-db-brp-service")
 	port := "5432"
 	user := first(os.Getenv("PGUSER"), "postgres")
-	pass := first(os.Getenv("PostgreSQL2"), os.Getenv("PostgreSQL"), "")
+	pass := os.Getenv("PostgreSQL")
 	name := first(os.Getenv("POSTGRES_DB"), "angel-dbhsl_db")
 
 	log.Printf("[db] env: BOT_PGF=%q BRP_HOST=%q PGUSER=%q DB=%q",
