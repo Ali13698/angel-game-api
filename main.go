@@ -54,11 +54,11 @@ func main() {
 	auth.Init()
 
 	h := hub.New(reg)
-	profile.Register(mux)
 	br := bridge.New()
 	h.SetBridge(br)
 
 	mux := http.NewServeMux()
+	profile.Register(mux)
 	mux.Handle("/bridge", br)
 	mux.Handle("/ws", h)
 	// removed
