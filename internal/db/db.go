@@ -14,6 +14,7 @@ var pool *pgxpool.Pool
 
 func Init(ctx context.Context) error {
 	host := first(
+		os.Getenv("PG_HOST_OVERRIDE"),
 		os.Getenv("ANGEL_BOT_PGF_SERVICE_SERVICE_HOST"),
 		os.Getenv("ANGEL_DB_BRP_SERVICE_SERVICE_HOST"),
 		"10.98.159.199")
