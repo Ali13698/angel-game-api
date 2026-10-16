@@ -21,7 +21,7 @@ func Init(ctx context.Context) error {
 	port := "5432"
 	user := first(os.Getenv("PGUSER"), "postgres")
 	pass := first(os.Getenv("PostgreSQL2"), os.Getenv("PostgreSQL"), "")
-	name := first(os.Getenv("POSTGRES_DB"), "angel-dbhs1_db")
+	name := first(os.Getenv("POSTGRES_DB"), "angel-dbhsl_db")
 
 	log.Printf("[db] env: BOT_PGF=%q BRP_HOST=%q PGUSER=%q DB=%q",
 		os.Getenv("ANGEL_BOT_PGF_SERVICE_SERVICE_HOST"),
