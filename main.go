@@ -15,6 +15,7 @@ import (
 	"github.com/angel/angel/internal/core/types"
 	"github.com/angel/angel/internal/games/echo"
 	"github.com/angel/angel/internal/games/ludo"
+	"github.com/angel/angel/internal/db"
 	"github.com/angel/angel/internal/hub"
 	"github.com/angel/angel/internal/registry"
 	"github.com/angel/angel/internal/storage"
@@ -31,6 +32,12 @@ func main() {
 		log.Fatal(err)
 	}
 
+	if err := db.Init(ctx); err != nil {
+		log.Printf("[db] FAIL: %v", err)
+	} else {
+		defer db.Close()
+	}
+
 	h := hub.New(reg)
 	br := bridge.New()
 	h.SetBridge(br)
@@ -43,6 +50,12 @@ func main() {
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("ok\n"))
+	})
+	mux.HandleFunc("/dbz", func(w http.ResponseWriter, r *http.Request) {
+		p := db.Pool()
+		if p == nil { http.Error(w, "db not init", 500); return }
+		if err := p.Ping(r.Context()); err != nil { http.Error(w, err.Error(), 500); return }
+		_, _ = w.Write([]byte("db ok\n"))
 	})
 	mux.HandleFunc("/readyz", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
