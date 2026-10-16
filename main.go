@@ -59,7 +59,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.Handle("/bridge", br)
 	mux.Handle("/ws", h)
-	mux.HandleFunc("/files/", storage.ProxyHandler)
+	// removed
 	mux.Handle("/", http.FileServer(http.Dir("/app/web")))
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
