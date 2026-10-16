@@ -22,6 +22,7 @@ import (
 	"github.com/angel/angel/internal/profile"
 	"github.com/angel/angel/internal/registry"
 	"github.com/angel/angel/internal/storage"
+	"github.com/angel/angel/internal/web"
 )
 
 func main() {
