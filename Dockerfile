@@ -11,14 +11,11 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 
-# دانلود esbuild binary (بدون Node/npm)
-RUN wget -q -O /tmp/esbuild.tgz \
-      https://registry.npmjs.org/@esbuild/linux-x64/-/linux-x64-0.21.5.tgz && \
-    mkdir -p /tmp/esbuild && \
-    tar -xzf /tmp/esbuild.tgz -C /tmp/esbuild && \
-    mv /tmp/esbuild/package/bin/esbuild /usr/local/bin/ && \
+# دانلود esbuild binary از unpkg (بدون Node/npm)
+RUN apk add --no-cache wget && \
+    wget -q -O /usr/local/bin/esbuild \
+      "https://unpkg.com/@esbuild/linux-x64@0.21.5/bin/esbuild" && \
     chmod +x /usr/local/bin/esbuild && \
-    rm -rf /tmp/esbuild /tmp/esbuild.tgz && \
     esbuild --version
 
 COPY . .
