@@ -151,3 +151,4 @@ func main() {
 	_ = reg.Close(shutdownCtx)
 	log.Printf("bye")
 }
+// force rebuild
