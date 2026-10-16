@@ -19,6 +19,7 @@ import (
 	"github.com/angel/angel/internal/games/ludo"
 	"github.com/angel/angel/internal/db"
 	"github.com/angel/angel/internal/hub"
+	"github.com/angel/angel/internal/profile"
 	"github.com/angel/angel/internal/registry"
 	"github.com/angel/angel/internal/storage"
 )
@@ -53,6 +54,7 @@ func main() {
 	auth.Init()
 
 	h := hub.New(reg)
+	profile.Register(mux)
 	br := bridge.New()
 	h.SetBridge(br)
 
