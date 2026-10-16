@@ -1,40 +1,34 @@
 package storage
 
 import (
-	"io"
-	"net/http"
+	"context"
+	"log"
 	"os"
+
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
-func ProxyHandler(w http.ResponseWriter, r *http.Request) {
-	target := os.Getenv("MINIO_INTERNAL_URL")
-	if target == "" {
-		target = "http://angel-cache-yti-service:9000"
-	}
+var client *minio.Client
 
-	// path format: /files/<bucket>/<object>
-	path := r.URL.Path
-	upstream := target + path
+func Init(ctx context.Context) error {
+	endpoint := first(os.Getenv("ANGEL_CACHE_YTI_SERVICE_SERVICE_HOST"), "127.0.0.1")
+	port := first(os.Getenv("ANGEL_CACHE_YTI_SERVICE_SERVICE_PORT_API"), "9000")
+	ak := first(os.Getenv("Minio"), os.Getenv("MINIO_ACCESS_KEY"), "admin")
+	sk := first(os.Getenv("MINIO_ROOT_PASSWORD"), os.Getenv("MINIO_ROOT_USER"), "")
+	c, err := minio.New(endpoint+":"+port, &minio.Options{
+		Creds: credentials.NewStaticV4(ak, sk, ""), Secure: false,
+	})
+	if err != nil { return err }
+	if _, err := c.ListBuckets(ctx); err != nil { return err }
+	client = c
+	log.Printf("[minio] OK")
+	return nil
+}
 
-	req, err := http.NewRequestWithContext(r.Context(), http.MethodGet, upstream, nil)
-	if err != nil {
-		http.Error(w, "bad request", http.StatusBadRequest)
-		return
-	}
-	req.Header.Set("Authorization", r.Header.Get("Authorization"))
+func Client() *minio.Client { return client }
 
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		http.Error(w, "upstream error", http.StatusBadGateway)
-		return
-	}
-	defer resp.Body.Close()
-
-	for k, v := range resp.Header {
-		for _, vv := range v {
-			w.Header().Add(k, vv)
-		}
-	}
-	w.WriteHeader(resp.StatusCode)
-	_, _ = io.Copy(w, resp.Body)
+func first(ss ...string) string {
+	for _, s := range ss { if s != "" { return s } }
+	return ""
 }

@@ -11,7 +11,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/angel/angel/internal/auth"
 	"github.com/angel/angel/internal/bridge"
+	"github.com/angel/angel/internal/cache"
 	"github.com/angel/angel/internal/core/types"
 	"github.com/angel/angel/internal/games/echo"
 	"github.com/angel/angel/internal/games/ludo"
@@ -38,6 +40,18 @@ func main() {
 		defer db.Close()
 	}
 
+	if err := cache.Init(ctx); err != nil {
+		log.Printf("[cache] FAIL: %v", err)
+	} else {
+		defer cache.Close()
+	}
+
+	if err := storage.Init(ctx); err != nil {
+		log.Printf("[storage] FAIL: %v", err)
+	}
+
+	auth.Init()
+
 	h := hub.New(reg)
 	br := bridge.New()
 	h.SetBridge(br)
@@ -50,6 +64,16 @@ func main() {
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("ok\n"))
+	})
+	mux.HandleFunc("/cachez", func(w http.ResponseWriter, r *http.Request) {
+		if cache.Client() == nil { http.Error(w, "cache not init", 500); return }
+		if err := cache.Client().Ping(r.Context()).Err(); err != nil { http.Error(w, err.Error(), 500); return }
+		_, _ = w.Write([]byte("cache ok\n"))
+	})
+	mux.HandleFunc("/minioz", func(w http.ResponseWriter, r *http.Request) {
+		if storage.Client() == nil { http.Error(w, "minio not init", 500); return }
+		if _, err := storage.Client().ListBuckets(r.Context()); err != nil { http.Error(w, err.Error(), 500); return }
+		_, _ = w.Write([]byte("minio ok\n"))
 	})
 	mux.HandleFunc("/dbz", func(w http.ResponseWriter, r *http.Request) {
 		p := db.Pool()
