@@ -11,8 +11,9 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 
-# نصب esbuild (برای build TypeScript)
-RUN apk add --no-cache esbuild
+# نصب Node + esbuild (از npm)
+RUN apk add --no-cache nodejs npm && \
+    npm install -g esbuild
 
 COPY . .
 
