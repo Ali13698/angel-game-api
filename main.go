@@ -60,6 +60,7 @@ func main() {
 	mux := http.NewServeMux()
 	profile.Register(mux)
 	profile.RegisterAuth(mux)
+	web.Register(mux)
 	mux.Handle("/bridge", br)
 	mux.Handle("/ws", h)
 	// removed
