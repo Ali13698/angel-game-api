@@ -6,12 +6,14 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/angel/angel/internal/bridge"
 	"github.com/angel/angel/internal/core/types"
 	"github.com/angel/angel/internal/registry"
+	ludobot "github.com/angel/angel/internal/bots/ludo"
 	"github.com/angel/angel/internal/room"
 	"github.com/angel/angel/internal/wire"
 	"github.com/coder/websocket"
@@ -67,6 +69,12 @@ func (h *Hub) OpenRoom(gameID types.GameID, players []types.UserID) (*room.Room,
 	h.mu.Lock()
 	h.rooms[rm.ID()] = rm
 	h.mu.Unlock()
+	for _, p := range players {
+		if strings.HasPrefix(string(p), "bot:") && gameID == "ludo" {
+			b := ludobot.NewBot(p, rm)
+			go b.Run(context.Background())
+		}
+	}
 	return rm, nil
 }
 
@@ -94,6 +102,26 @@ func (h *Hub) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	go c.writeLoop()
 	c.readLoop()
+}
+
+func (h *Hub) broadcastToRoom(rm *room.Room, frame []byte) {
+	h.mu.Lock()
+	clients := make([]*client, 0, len(h.clients))
+	for c := range h.clients {
+		clients = append(clients, c)
+	}
+	h.mu.Unlock()
+	for _, c := range clients {
+		c.mu.Lock()
+		my := c.room
+		c.mu.Unlock()
+		if my != nil && my.ID() == rm.ID() {
+			c.enqueue(frame)
+		}
+	}
+	if h.br != nil {
+		h.br.PushRaw(frame)
+	}
 }
 
 func (h *Hub) Shutdown(ctx context.Context) error {
@@ -179,7 +207,29 @@ func (c *client) handle(m wire.InboundMsg) {
 		if rm != nil {
 			_ = rm.Leave(context.Background(), c.id)
 		}
-	case wire.TypeState:
+	case wire.TypeChat:
+        c.mu.Lock(); rm := c.room; c.mu.Unlock()
+        if rm == nil { return }
+        var p struct{ Text string `json:"text"` }
+        if err := json.Unmarshal(m.Payload, &p); err != nil { return }
+        if len(p.Text) > 500 { p.Text = p.Text[:500] }
+        if p.Text == "" { return }
+        c.hub.broadcastToRoom(rm, wire.OutboundMsg{
+            Type: wire.TypeChat, RoomID: string(rm.ID()), From: string(c.id),
+            Payload: map[string]any{"text": p.Text, "user_id": string(c.id)},
+        }.Bytes())
+    case wire.TypeEmoji:
+        c.mu.Lock(); rm := c.room; c.mu.Unlock()
+        if rm == nil { return }
+        var p struct{ Emoji string `json:"emoji"` }
+        if err := json.Unmarshal(m.Payload, &p); err != nil { return }
+        if len(p.Emoji) > 8 { p.Emoji = p.Emoji[:8] }
+        if p.Emoji == "" { return }
+        c.hub.broadcastToRoom(rm, wire.OutboundMsg{
+            Type: wire.TypeEmoji, RoomID: string(rm.ID()), From: string(c.id),
+            Payload: map[string]any{"emoji": p.Emoji, "user_id": string(c.id)},
+        }.Bytes())
+    case wire.TypeState:
 		c.mu.Lock()
 		rm := c.room
 		c.mu.Unlock()

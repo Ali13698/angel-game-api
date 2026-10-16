@@ -17,6 +17,8 @@ const (
 	TypeEvent  = "event"
 	TypePong   = "pong"
 	TypeError  = "error"
+	TypeChat   = "chat"
+	TypeEmoji  = "emoji"
 )
 
 const (
@@ -70,6 +72,7 @@ type OutboundMsg struct {
 	State  any    `json:"state,omitempty"`
 	From   string `json:"from,omitempty"`
 	Error  string `json:"error,omitempty"`
+	Payload any    `json:"payload,omitempty"`
 }
 
 func (m OutboundMsg) Bytes() []byte {
