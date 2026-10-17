@@ -1,4 +1,3 @@
- 
 :root {
   --bg-color: #0c0f14;
   --card-bg: #15181e;
@@ -16,13 +15,13 @@
 body { font-family: var(--font-family); background-color: var(--bg-color); color: var(--text-main); padding: 16px; direction: rtl; }
 .container { max-width: 480px; margin: 0 auto; }
 
-/* Profile Card - Absolute positioning for avatar */
-.profile-card { background-color: var(--card-bg); border-radius: var(--border-radius); overflow: hidden; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); position: relative; }
-.banner { height: 140px; background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%); width: 100%; }
-.avatar-container { position: absolute; top: 80px; left: 50%; transform: translateX(-50%); z-index: 10; }
+/* Profile Card */
+.profile-card { background-color: var(--card-bg); border-radius: var(--border-radius); overflow: hidden; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+.banner { height: 140px; background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%); position: relative; }
+.avatar-container { display: flex; justify-content: center; margin-top: -60px; }
 .avatar { width: 120px; height: 120px; border-radius: 50%; background-color: #1a1f3a; border: 4px solid var(--card-bg); display: flex; align-items: center; justify-content: center; font-size: 50px; overflow: hidden; }
 .avatar img { width: 100%; height: 100%; object-fit: cover; }
-.profile-info { text-align: center; padding: 80px 20px 20px; }
+.profile-info { text-align: center; padding: 10px 20px 20px; }
 .name { font-size: 24px; font-weight: 800; color: #c084fc; }
 .username { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
 .bio { margin-top: 12px; font-size: 14px; color: var(--text-main); background-color: var(--inner-card-bg); padding: 8px 16px; border-radius: 20px; display: inline-block; }
@@ -49,6 +48,7 @@ body { font-family: var(--font-family); background-color: var(--bg-color); color
 .game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .game-name { font-size: 16px; font-weight: 700; }
 .game-level { font-size: 14px; color: var(--text-muted); }
+.game-rank { font-size: 12px; color: var(--text-muted); margin-left: 8px; }
 .progress-bar { height: 8px; background-color: var(--inner-card-bg); border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
 .progress-fill { height: 100%; background-color: var(--accent-green); border-radius: 4px; }
 .game-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); }
@@ -66,3 +66,58 @@ body { font-family: var(--font-family); background-color: var(--bg-color); color
 .modal-btn.save { background: var(--accent-blue); color: white; }
 .modal-btn.close { background: transparent; color: var(--text-muted); }
 #btn-edit-avatar { cursor: pointer; }
+
+/* BULLETPROOF Z-INDEX FIX */
+.profile-card {
+    position: relative !important;
+    overflow: hidden !important;
+}
+.banner {
+    position: relative !important;
+    z-index: 1 !important;
+}
+.avatar-container {
+    display: flex !important;
+    justify-content: center !important;
+    margin-top: -60px !important;
+    position: relative !important;
+    z-index: 10 !important;
+}
+.avatar {
+    position: relative !important;
+    z-index: 11 !important;
+    border-radius: 50% !important;
+}
+
+/* Settings Gear & Plus Buttons */
+.settings-btn { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 20px; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; z-index: 20; display: flex; align-items: center; justify-content: center; }
+.add-btn { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); background: #3b82f6; color: white; border: 2px solid var(--card-bg); border-radius: 50%; width: 28px; height: 28px; font-size: 18px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 20; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+.banner { position: relative; } /* Needed for absolute add button */
+.avatar-container { position: absolute; top: 80px; left: 50%; transform: translateX(-50%); z-index: 10; }
+
+/* Settings Modal List */
+.settings-list { list-style: none; padding: 0; margin: 0; border-radius: 12px; overflow: hidden; background: var(--inner-card-bg); }
+.settings-item { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 1px solid var(--card-bg); cursor: pointer; color: var(--text-main); font-size: 15px; font-weight: 500; }
+.settings-item:last-child { border-bottom: none; }
+.settings-item:hover { background-color: #2a2e38; }
+.settings-icon { font-size: 20px; }
+
+.settings-btn { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 20px; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; z-index: 20; display: flex; align-items: center; justify-content: center; }
+.add-btn { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); background: #3b82f6; color: white; border: 2px solid var(--card-bg); border-radius: 50%; width: 28px; height: 28px; font-size: 18px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 20; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+.banner { position: relative; } 
+.avatar-container { position: absolute; top: 80px; left: 50%; transform: translateX(-50%); z-index: 10; }
+.settings-list { list-style: none; padding: 0; margin: 0; border-radius: 12px; overflow: hidden; background: var(--inner-card-bg); }
+.settings-item { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 1px solid var(--card-bg); cursor: pointer; color: var(--text-main); font-size: 15px; font-weight: 500; }
+.settings-item:last-child { border-bottom: none; }
+.settings-item:hover { background-color: #2a2e38; }
+.settings-icon { font-size: 20px; }
+
+.settings-btn { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 20px; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; z-index: 20; display: flex; align-items: center; justify-content: center; }
+.add-btn { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); background: #3b82f6; color: white; border: 2px solid var(--card-bg); border-radius: 50%; width: 28px; height: 28px; font-size: 18px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 20; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+.banner { position: relative; } 
+.avatar-container { position: absolute; top: 80px; left: 50%; transform: translateX(-50%); z-index: 10; }
+.settings-list { list-style: none; padding: 0; margin: 0; border-radius: 12px; overflow: hidden; background: var(--inner-card-bg); }
+.settings-item { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 1px solid var(--card-bg); cursor: pointer; color: var(--text-main); font-size: 15px; font-weight: 500; }
+.settings-item:last-child { border-bottom: none; }
+.settings-item:hover { background-color: #2a2e38; }
+.settings-icon { font-size: 20px; }

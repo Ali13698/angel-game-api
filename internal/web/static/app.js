@@ -1,117 +1,43 @@
-
-const GAME_INFO = { 'ludo': { name: 'منچ', icon: '🎯' }, 'backgammon': { name: 'بک‌گمون', icon: '🎲' }, 'chess': { name: 'شطرنج', icon: '♟️' }, 'football': { name: 'فوتبال دستی', icon: '⚽' }, 'billiards': { name: 'بیلیارد', icon: '🎱' } };
-const DICEBEAR_STYLES = ['adventurer', 'avataaars', 'bottts', 'fun-emoji', 'lorelei', 'micah', 'miniavs', 'notionists', 'open-peeps', 'personas'];
-const AVATARS = Array.from({ length: 10 }, (_, i) => `https://api.dicebear.com/7.x/${DICEBEAR_STYLES[i % 10]}/svg?seed=Angel${i + 1}`);
-function escapeHtml(s) { return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-
-function render(user, stats, appEl, onSaveProfile) {
-    const displayName = user.display_name || user.game_username || ('User' + user.id);
-    const avatarContent = user.avatar ? `<img src="${escapeHtml(user.avatar)}">` : (user.name_emoji || '🎮');
-    
-    // Like Logic
-    const isLiked = localStorage.getItem('liked_' + user.id) === 'true';
-    const heartColor = isLiked ? '#ef4444' : '#ffffff';
-    const likesCount = user.likes_count || 0;
-
-    let statsHtml = '';
-    if (!stats || stats.length === 0) {
-        statsHtml = `<div class="game-stats-card"><div style="text-align:center;padding:20px;color:#8b949e;">هنوز آماری ثبت نشده است.</div></div>`;
-    } else {
-        statsHtml = `<div class="game-stats-card">`;
-        stats.forEach(g => {
-            const info = GAME_INFO[g.game_id] || { name: g.game_id, icon: '🎮' };
-            const winRate = g.games_played > 0 ? Math.round((g.wins / g.games_played) * 100) : 0;
-            statsHtml += `<div class="game-item"><div class="game-icon">${info.icon}</div><div class="game-details"><div class="game-header"><div><span class="game-name">${info.name}</span></div><div class="game-level">مرحله ${g.level}</div></div><div class="progress-bar"><div class="progress-fill" style="width: ${winRate}%"></div></div><div class="game-meta"><span>${g.games_played} بازی کرده</span><span>${g.wins} برنده شده</span></div></div><div class="game-star">${g.level}</div></div>`;
-        });
-        statsHtml += `</div>`;
-    }
-
-    let gridHtml = '';
-    AVATARS.forEach(url => { gridHtml += `<img src="${url}" class="avatar-option ${user.avatar === url ? 'selected' : ''}" data-url="${url}" />`; });
-
-    appEl.innerHTML = `
-    <div class="container">
-        <div class="profile-card">
-            <div class="banner"></div>
-            <div class="avatar-container"><div class="avatar" id="btn-edit-avatar">${avatarContent}</div></div>
-            <div class="profile-info" style="padding-top: 70px;">
-                <div class="name" style="color:${user.profile_color || '#c084fc'}">${escapeHtml(displayName)}</div>
-                <div class="username">@${escapeHtml(user.game_username || 'unknown')}</div>
-                <div class="bio">${escapeHtml(user.bio || '---')}</div>
-            </div>
-            <div class="main-stats">
-                <div class="stat-box" id="like-box" style="cursor:pointer;">
-                    <div class="stat-value" id="heart-icon" style="color:${heartColor}; font-size:24px; line-height:1;">❤</div>
-                    <div class="stat-label" id="likes-count" style="margin-top:4px;">${likesCount}</div>
-                </div>
-                <div class="stat-box"><div class="stat-value">${user.age_days || 0}</div><div class="stat-label">روز</div></div>
-                <div class="stat-box"><div class="stat-value">${user.wins || 0}</div><div class="stat-label">برد</div></div>
-            </div>
-            <div class="action-buttons">
-                <button class="btn-square blue" id="btn-edit-bio">✏️</button>
-                <button class="btn-square green">💎 ${user.gems || 0}</button>
-                <button class="btn-square">🪙 ${user.coins || 0}</button>
-            </div>
-            <div style="padding: 0 20px 20px;"><button class="btn-hype">هایپ 🚀</button></div>
+(()=>{async function E(t){try{let e=await(await fetch("/api/auth/token?id="+t)).json();return e.ok?e.token:null}catch{return null}}async function u(t){let n=new URLSearchParams(location.search).get("id");if(!n)return!1;let e=await E(parseInt(n,10));if(!e)return!1;try{return(await fetch("/api/me",{method:"PATCH",headers:{Authorization:"Bearer "+e,"Content-Type":"application/json"},body:JSON.stringify(t)})).ok}catch{return!1}}var k={ludo:{name:"\u0645\u0646\u0686",icon:"\u{1F3AF}"},backgammon:{name:"\u0628\u06A9\u200C\u06AF\u0645\u0648\u0646",icon:"\u{1F3B2}"},chess:{name:"\u0634\u0637\u0631\u0646\u062C",icon:"\u265F\uFE0F"},football:{name:"\u0641\u0648\u062A\u0628\u0627\u0644 \u062F\u0633\u062A\u06CC",icon:"\u26BD"},billiards:{name:"\u0628\u06CC\u0644\u06CC\u0627\u0631\u062F",icon:"\u{1F3B1}"}},x=["adventurer","avataaars","bottts","fun-emoji","lorelei","micah","miniavs","notionists","open-peeps","personas"],L=Array.from({length:10},(t,n)=>`https://api.dicebear.com/7.x/${x[n%10]}/svg?seed=Angel${n+1}`);function o(t){return String(t||"").replace(/[&<>"']/g,n=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[n])}function $(t,n){let e=t.display_name||t.game_username||"User"+t.id,i=t.avatar?`<img src="${o(t.avatar)}">`:t.name_emoji||"\u{1F3AE}",l=n?"#ef4444":"#ffffff";return`
+    <div class="profile-card">
+      <div class="banner">
+        <button class="settings-btn" id="btn-open-settings">\u2699\uFE0F</button>
+        <button class="add-btn" id="btn-add-banner">+</button>
+      </div>
+      <div class="avatar-container"><div class="avatar" id="btn-edit-avatar">${i}</div></div>
+      <div class="profile-info" style="padding-top: 80px;">
+        <div class="name" style="color:${t.profile_color||"#c084fc"}">${o(e)}</div>
+        <div class="username">@${o(t.game_username||"unknown")}</div>
+        <div class="bio">${o(t.bio||"---")}</div>
+      </div>
+      <div class="main-stats">
+        <div class="stat-box" id="like-box" style="cursor:pointer;">
+          <div class="stat-value" id="heart-icon" style="color:${l}; font-size:24px; line-height:1;">\u2764</div>
+          <div class="stat-label" id="likes-count" style="margin-top:4px;">${t.likes_count||0}</div>
         </div>
-        <div class="section-title" style="margin-bottom: 10px; color:#8b949e;">آمار من</div>
-        ${statsHtml}
-    </div>
-    <div id="edit-modal" class="modal">
-        <div class="modal-content">
-            <h3 style="text-align:center; margin-bottom:15px;">ویرایش پروفایل</h3>
-            <div class="avatar-grid" id="avatar-grid">${gridHtml}</div>
-            <textarea id="bio-input" placeholder="بیوگرافی...">${escapeHtml(user.bio || '')}</textarea>
-            <button class="modal-btn save" id="save-profile-btn">ذخیره</button>
-            <button class="modal-btn close" id="close-modal-btn">انصراف</button>
-        </div>
-    </div>`;
-
-    let selectedAvatar = user.avatar || '';
-    const modal = document.getElementById('edit-modal');
-    [document.getElementById('btn-edit-avatar'), document.getElementById('btn-edit-bio')].forEach(btn => btn?.addEventListener('click', () => modal?.classList.add('active')));
-    document.getElementById('close-modal-btn')?.addEventListener('click', () => modal?.classList.remove('active'));
-    document.querySelectorAll('.avatar-option').forEach(img => img.addEventListener('click', (e) => { document.querySelectorAll('.avatar-option').forEach(i => i.classList.remove('selected')); (e.target).classList.add('selected'); selectedAvatar = (e.target).getAttribute('data-url') || ''; }));
-    document.getElementById('save-profile-btn')?.addEventListener('click', () => onSaveProfile(selectedAvatar, (document.getElementById('bio-input')).value));
-
-    document.getElementById('like-box')?.addEventListener('click', () => {
-        const currentlyLiked = localStorage.getItem('liked_' + user.id) === 'true';
-        if (!currentlyLiked) {
-            localStorage.setItem('liked_' + user.id, 'true');
-            document.getElementById('heart-icon').style.color = '#ef4444';
-            document.getElementById('likes-count').innerText = likesCount + 1;
-        } else {
-            localStorage.setItem('liked_' + user.id, 'false');
-            document.getElementById('heart-icon').style.color = '#ffffff';
-            document.getElementById('likes-count').innerText = likesCount;
-        }
-    });
-}
-
-async function fetchToken(userId) { try { const r = await fetch('/api/auth/token?id=' + userId); const d = await r.json(); return d.ok ? d.token : null; } catch { return null; } }
-async function updateProfile(patch) {
-    const p = new URLSearchParams(location.search).get('id'); if (!p) return false;
-    const token = await fetchToken(parseInt(p, 10)); if (!token) return false;
-    try { const r = await fetch('/api/me', { method: 'PATCH', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify(patch) }); return r.ok; } catch { return false; }
-}
-
-const appEl = document.getElementById('app');
-let currentUser = null;
-let currentStats = [];
-async function loadProfile() {
-    const p = new URLSearchParams(location.search).get('id');
-    if (!p) { if (appEl) appEl.innerHTML = '<div style="text-align:center;padding:20px;">No ID</div>'; return; }
-    try {
-        const r = await fetch('/api/profile/' + p);
-        const d = await r.json();
-        if (!d.ok) { if (appEl) appEl.innerHTML = '<div style="text-align:center;padding:20px;">Not Found</div>'; return; }
-        currentUser = d.user; currentStats = d.stats || [];
-        if (appEl && currentUser) render(currentUser, currentStats, appEl, handleSaveProfile);
-    } catch(e) { if (appEl) appEl.innerHTML = '<div style="text-align:center;padding:20px;">Error</div>'; }
-}
-async function handleSaveProfile(avatar, bio) {
-    if (!currentUser) return;
-    const ok = await updateProfile({ avatar, bio });
-    if (ok && appEl) { currentUser.avatar = avatar; currentUser.bio = bio; render(currentUser, currentStats, appEl, handleSaveProfile); document.getElementById('edit-modal')?.classList.remove('active'); } else { alert('خطا در ذخیره اطلاعات'); }
-}
-loadProfile();
+        <div class="stat-box"><div class="stat-value">${t.age_days||0}</div><div class="stat-label">\u0631\u0648\u0632</div></div>
+        <div class="stat-box"><div class="stat-value">${t.wins||0}</div><div class="stat-label">\u0628\u0631\u062F</div></div>
+      </div>
+      <div class="action-buttons">
+        <button class="btn-square blue" id="btn-edit-bio">\u270F\uFE0F</button>
+        <button class="btn-square green">\u{1F48E} ${t.gems||0}</button>
+        <button class="btn-square">\u{1FA99} ${t.coins||0}</button>
+      </div>
+      <div style="padding: 0 20px 20px;"><button class="btn-hype">\u0647\u0627\u06CC\u067E \u{1F680}</button></div>
+    </div>`}function I(t){if(!t||t.length===0)return'<div class="game-stats-card"><div style="text-align:center;padding:20px;color:#8b949e;">\u0647\u0646\u0648\u0632 \u0622\u0645\u0627\u0631\u06CC \u062B\u0628\u062A \u0646\u0634\u062F\u0647 \u0627\u0633\u062A.</div></div>';let n='<div class="game-stats-card">';return t.forEach(e=>{let i=k[e.game_id]||{name:e.game_id,icon:"\u{1F3AE}"},l=e.games_played>0?Math.round(e.wins/e.games_played*100):0;n+=`<div class="game-item"><div class="game-icon">${i.icon}</div><div class="game-details"><div class="game-header"><div><span class="game-name">${i.name}</span></div><div class="game-level">\u0645\u0631\u062D\u0644\u0647 ${e.level}</div></div><div class="progress-bar"><div class="progress-fill" style="width: ${l}%"></div></div><div class="game-meta"><span>${e.games_played} \u0628\u0627\u0632\u06CC \u06A9\u0631\u062F\u0647</span><span>${e.wins} \u0628\u0631\u0646\u062F\u0647 \u0634\u062F\u0647</span></div></div><div class="game-star">${e.level}</div></div>`}),n+"</div>"}function S(t){let n="";return L.forEach(e=>{n+=`<img src="${e}" class="avatar-option ${t.avatar===e?"selected":""}" data-url="${e}" />`}),`<div id="edit-modal" class="modal"><div class="modal-content"><h3 style="text-align:center; margin-bottom:15px;">\u0648\u06CC\u0631\u0627\u06CC\u0634 \u067E\u0631\u0648\u0641\u0627\u06CC\u0644</h3><div class="avatar-grid" id="avatar-grid">${n}</div><textarea id="bio-input" placeholder="\u0628\u06CC\u0648\u06AF\u0631\u0627\u0641\u06CC...">${o(t.bio||"")}</textarea><button class="modal-btn save" id="save-profile-btn">\u0630\u062E\u06CC\u0631\u0647</button><button class="modal-btn close" id="close-modal-btn">\u0627\u0646\u0635\u0631\u0627\u0641</button></div></div>`}function _(){return`
+    <div id="settings-modal" class="modal">
+      <div class="modal-content" style="padding: 15px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;"><h3 style="margin:0;">\u062A\u0646\u0638\u06CC\u0645\u0627\u062A</h3><button id="close-settings-btn" style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">\u2716</button></div>
+        <ul class="settings-list">
+            <li class="settings-item"><span>\u062D\u0633\u0627\u0628</span> <span class="settings-icon">\u{1F464}</span></li>
+            <li class="settings-item"><span>\u062F\u0633\u062A\u06AF\u0627\u0647\u200C\u0647\u0627</span> <span class="settings-icon">\u{1F4F1}</span></li>
+            <li class="settings-item"><span>\u0632\u0628\u0627\u0646</span> <span class="settings-icon">\u{1F30D}</span></li>
+            <li class="settings-item"><span>\u0628\u0627\u0632\u06CC\u200C\u0647\u0627</span> <span class="settings-icon">\u{1F3AE}</span></li>
+            <li class="settings-item"><span>\u0627\u0639\u0644\u0627\u0646\u200C\u0647\u0627</span> <span class="settings-icon">\u{1F514}</span></li>
+            <li class="settings-item"><span>\u062D\u0631\u06CC\u0645 \u062E\u0635\u0648\u0635\u06CC</span> <span class="settings-icon">\u{1F512}</span></li>
+            <li class="settings-item"><span>\u062A\u0645\u200C\u0647\u0627</span> <span class="settings-icon">\u{1F3A8}</span></li>
+            <li class="settings-item"><span>\u062F\u0631\u0628\u0627\u0631\u0647 \u0622\u0646\u062C\u0644</span> <span class="settings-icon">\u24D8</span></li>
+            <li class="settings-item"><span>\u062F\u0631\u06CC\u0627\u0641\u062A \u067E\u0634\u062A\u06CC\u0628\u0627\u0646\u06CC</span> <span class="settings-icon">\u2753</span></li>
+        </ul>
+      </div>
+    </div>`}function c(t,n,e,i,l){let y=localStorage.getItem("liked_"+t.id)==="true";e.innerHTML=`<div class="container">${$(t,y)}<div class="section-title" style="margin-bottom: 10px; color:#8b949e;">\u0622\u0645\u0627\u0631 \u0645\u0646</div>${I(n)}</div>${S(t)}${_()}`;let m=t.avatar||"",v=document.getElementById("edit-modal");[document.getElementById("btn-edit-avatar"),document.getElementById("btn-edit-bio")].forEach(d=>d?.addEventListener("click",()=>v?.classList.add("active"))),document.getElementById("close-modal-btn")?.addEventListener("click",()=>v?.classList.remove("active")),document.querySelectorAll(".avatar-option").forEach(d=>d.addEventListener("click",g=>{document.querySelectorAll(".avatar-option").forEach(h=>h.classList.remove("selected")),g.target.classList.add("selected"),m=g.target.getAttribute("data-url")||""})),document.getElementById("save-profile-btn")?.addEventListener("click",()=>i(m,document.getElementById("bio-input").value)),document.getElementById("like-box")?.addEventListener("click",l);let p=document.getElementById("settings-modal");document.getElementById("btn-open-settings")?.addEventListener("click",()=>p?.classList.add("active")),document.getElementById("close-settings-btn")?.addEventListener("click",()=>p?.classList.remove("active")),document.getElementById("btn-add-banner")?.addEventListener("click",()=>alert("\u0622\u067E\u0644\u0648\u062F \u0628\u0646\u0631 \u0628\u0647 \u0632\u0648\u062F\u06CC..."))}var s=document.getElementById("app"),a=null,r=[];async function B(){let t=new URLSearchParams(location.search).get("id");if(!t){s&&(s.innerHTML='<div style="text-align:center;padding:20px;">No ID</div>');return}try{let e=await(await fetch("/api/profile/"+t)).json();if(!e.ok){s&&(s.innerHTML='<div style="text-align:center;padding:20px;">Not Found</div>');return}a=e.user,r=e.stats||[],s&&a&&c(a,r,s,b,f)}catch{s&&(s.innerHTML='<div style="text-align:center;padding:20px;">Error</div>')}}async function b(t,n){if(!a)return;await u({avatar:t,bio:n})&&s?(a.avatar=t,a.bio=n,c(a,r,s,b,f),document.getElementById("edit-modal")?.classList.remove("active")):alert("\u062E\u0637\u0627 \u062F\u0631 \u0630\u062E\u06CC\u0631\u0647 \u0627\u0637\u0644\u0627\u0639\u0627\u062A")}function f(){if(!a)return;localStorage.getItem("liked_"+a.id)==="true"?(localStorage.setItem("liked_"+a.id,"false"),document.getElementById("heart-icon").style.color="#ffffff",document.getElementById("likes-count").innerText=a.likes_count.toString()):(localStorage.setItem("liked_"+a.id,"true"),document.getElementById("heart-icon").style.color="#ef4444",document.getElementById("likes-count").innerText=(a.likes_count+1).toString())}B();})();
