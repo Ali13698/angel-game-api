@@ -1,6 +1,7 @@
 const appEl = document.getElementById('app');
 if (appEl) appEl.innerHTML = '<div class="status">در حال دریافت...</div>';
 const API_BASE = '';
+const PRESET_EMOJIS = ['🐉','🦊','🌟','🐼','🦁','🐸','🐺','🦄','🐯','🐨','👾','🤖','🧑','👩','🧔','👑'];
 let currentUser = null;
 
 function getUserIdFromURL() {
@@ -16,7 +17,7 @@ async function fetchToken(userId) {
   } catch { return null; }
 }
 
-async function updateBio(newBio) {
+async function updateProfile(patch) {
   const uid = getUserIdFromURL();
   const token = await fetchToken(uid);
   if (!token) return false;
@@ -24,7 +25,7 @@ async function updateBio(newBio) {
     const r = await fetch(API_BASE + '/api/me', {
       method: 'PATCH',
       headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ bio: newBio })
+      body: JSON.stringify(patch)
     });
     return r.ok;
   } catch { return false; }
@@ -39,19 +40,35 @@ function render(user) {
   currentUser = user;
   const displayName = user.display_name || user.first_name || user.game_username || ('User' + user.id);
   const color = user.profile_color || '#8b5cf6';
+  const avatarContent = user.avatar ? '<img src="' + escapeHtml(user.avatar) + '">' : (user.name_emoji || '🎮');
+  
   appEl.innerHTML = '<div class="banner"></div>' +
-    '<div class="avatar-wrap"><div class="avatar">' + (user.avatar ? '<img src="' + escapeHtml(user.avatar) + '">' : '🎮') + '</div></div>' +
+    '<div class="avatar-wrap"><div class="avatar">' + avatarContent + '</div></div>' +
     '<div class="name" style="color:' + color + '">' + escapeHtml(displayName) + '</div>' +
     '<div class="username">@' + escapeHtml(user.game_username || 'unknown') + '</div>' +
     '<div class="bio">' + escapeHtml(user.bio || '---') + '</div>' +
     '<div class="stats"><div><div class="stat-value">' + user.coins + '</div><div class="stat-label">سکه</div></div>' +
     '<div><div class="stat-value">' + user.gems + '</div><div class="stat-label">الماس</div></div>' +
     '<div><div class="stat-value">' + user.level + '</div><div class="stat-label">سطح</div></div></div>' +
-    '<button class="btn" id="btn-edit-bio">تغییر بیو</button>';
+    '<button class="btn" id="btn-edit-bio">تغییر بیو</button>' +
+    '<div class="section"><div class="section-title">ایموجی نام</div><div class="emoji-row" id="emoji-row">' +
+    PRESET_EMOJIS.map(function(e) { return '<button class="emoji-btn' + (user.name_emoji === e ? ' active' : '') + '" data-emoji="' + e + '">' + e + '</button>'; }).join('') +
+    '</div></div>';
   
   document.getElementById('btn-edit-bio').addEventListener('click', function() {
     document.getElementById('bio-input').value = currentUser.bio || '';
     document.getElementById('bio-modal').classList.remove('hidden');
+  });
+  
+  document.querySelectorAll('.emoji-btn').forEach(function(btn) {
+    btn.addEventListener('click', async function() {
+      const e = btn.dataset.emoji;
+      const ok = await updateProfile({ name_emoji: e });
+      if (ok) {
+        currentUser.name_emoji = e;
+        render(currentUser); // Re-render to show new emoji and active state
+      }
+    });
   });
 }
 
@@ -61,15 +78,13 @@ document.getElementById('btn-cancel-bio').addEventListener('click', function() {
 
 document.getElementById('btn-confirm-bio').addEventListener('click', async function() {
   const newBio = document.getElementById('bio-input').value;
-  const ok = await updateBio(newBio);
+  const ok = await updateProfile({ bio: newBio });
   if (ok) {
     document.getElementById('bio-modal').classList.add('hidden');
     currentUser.bio = newBio;
     const bioEl = document.querySelector('.bio');
     if (bioEl) bioEl.textContent = newBio || '---';
-  } else {
-    alert('خطا در ذخیره');
-  }
+  } else { alert('خطا در ذخیره'); }
 });
 
 async function main() {
