@@ -20,8 +20,7 @@ func copyFile(src, dst string) {
 
 func main() {
 	os.MkdirAll("internal/web/static", 0755)
-	os.Remove("internal/web/static/app.js")
-
+	
 	result := api.Build(api.BuildOptions{
 		EntryPoints:       []string{"web/profile/app.ts"},
 		Bundle:            true,

@@ -2,7 +2,6 @@ package web
 
 import (
 	"embed"
-	"io/fs"
 	"net/http"
 	"strings"
 )
@@ -11,16 +10,33 @@ import (
 var staticFS embed.FS
 
 func Register(mux *http.ServeMux) {
-	sub, err := fs.Sub(staticFS, "static")
-	if err != nil { return }
-	fileServer := http.FileServer(http.FS(sub))
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasSuffix(r.URL.Path, ".js") {
-			w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
-		} else if strings.HasSuffix(r.URL.Path, ".css") {
-			w.Header().Set("Content-Type", "text/css; charset=utf-8")
+		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+		
+		path := strings.TrimPrefix(r.URL.Path, "/profile/")
+		if path == "" || path == "/" {
+			path = "index.html"
 		}
-		fileServer.ServeHTTP(w, r)
+		
+		if idx := strings.Index(path, "?"); idx != -1 {
+			path = path[:idx]
+		}
+
+		data, err := staticFS.ReadFile("static/" + path)
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+
+		if strings.HasSuffix(path, ".js") {
+			w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+		} else if strings.HasSuffix(path, ".css") {
+			w.Header().Set("Content-Type", "text/css; charset=utf-8")
+		} else if strings.HasSuffix(path, ".html") {
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		}
+
+		w.Write(data)
 	})
-	mux.Handle("/profile/", http.StripPrefix("/profile/", handler))
+	mux.Handle("/profile/", handler)
 }
