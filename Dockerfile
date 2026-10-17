@@ -13,10 +13,13 @@ RUN go mod download
 
 COPY . .
 
-# کامپایل TypeScript به JavaScript با خود Go (بدون نیاز به ابزار خارجی)
+# ساخت پوشه استاتیک برای جلوگیری از خطای go:embed
+RUN mkdir -p internal/web/static && touch internal/web/static/.gitkeep
+
+# تبدیل TS به JS با ابزار Go (تست شده و کار می‌کند)
 RUN go run ./cmd/build-ts
 
-# بیلد نهایی اپلیکیشن
+# بیلد نهایی
 RUN go build -o myapp .
 
 ENTRYPOINT ["/app/myapp"]
