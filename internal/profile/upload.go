@@ -63,9 +63,13 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 			writeJSON(w, 500, map[string]any{"ok": false, "error": "bucket creation failed"}); 
 			return 
 		}
-		policy := `{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"AWS":["*"]},"Action":["s3:GetObject"],"Resource":["arn:aws:s3:::` + bucketName + `/*"]}]}`
-		storage.Client().SetBucketPolicy(context.Background(), bucketName, policy)
-		log.Printf("[UPLOAD] Bucket %s created and policy set.", bucketName)
+	}
+	
+	// ALWAYS set public policy (this fixes the image not showing bug)
+	policy := `{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"AWS":["*"]},"Action":["s3:GetObject"],"Resource":["arn:aws:s3:::` + bucketName + `/*"]}]}`
+	err = storage.Client().SetBucketPolicy(context.Background(), bucketName, policy)
+	if err != nil {
+	    log.Printf("[UPLOAD] SetBucketPolicy warning: %v", err)
 	}
 
 	log.Printf("[UPLOAD] Uploading %s to MinIO...", objectName)

@@ -1,13 +1,65 @@
 import { User, StoreItem } from '../types';
 import { escapeHtml } from './profile';
 
-const ICON_PLUS = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>`;
+const ICON_LOCK = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`;
+const ICON_GALLERY = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`;
+const ICON_GIF = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><text x="12" y="16" text-anchor="middle" font-size="10" fill="currentColor">GIF</text></svg>`;
+const ICON_FRAME = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"></path><path d="M9 4v16"></path><path d="M15 4v16"></path><path d="M4 9h16"></path><path d="M4 15h16"></path></svg>`;
+const ICON_AVATAR = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="10" r="3"></circle><path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662"></path></svg>`;
 
-export function renderAvatarModal(user: User, avatars: StoreItem[]): string {
+export function renderAvatarOptionsModal(): string {
+  return `
+    <div id="avatar-options-modal" class="modal">
+      <div class="modal-content" style="padding: 15px; background: #1c2028;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3 style="margin:0; font-size:16px;">تغییر تصویر</h3>
+            <button id="close-avatar-options" style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">✖</button>
+        </div>
+        
+        <div class="avatar-options-grid">
+            <div class="option-btn locked" id="opt-gif">
+                <div class="opt-icon">${ICON_GIF}</div>
+                <div class="opt-label">انتخاب گیف</div>
+                <div class="lock-badge">${ICON_LOCK} 2</div>
+            </div>
+            <div class="option-btn active" id="opt-gallery">
+                <div class="opt-icon">${ICON_GALLERY}</div>
+                <div class="opt-label">گالری</div>
+            </div>
+            <div class="option-btn locked" id="opt-frame">
+                <div class="opt-icon">${ICON_FRAME}</div>
+                <div class="opt-label">قاب</div>
+                <div class="lock-badge">${ICON_LOCK}</div>
+            </div>
+            <div class="option-btn active" id="opt-dicebear">
+                <div class="opt-icon">${ICON_AVATAR}</div>
+                <div class="opt-label">آواتار</div>
+            </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+export function renderCropperModal(): string {
+    return `
+    <div id="cropper-modal" class="modal">
+      <div class="modal-content" style="padding: 15px; background: #1c2028; width: 95%; max-width: 500px;">
+        <h3 style="text-align:center; margin-bottom:15px;">تنظیم عکس</h3>
+        <div style="width: 100%; height: 300px; background: #000; border-radius: 8px; overflow: hidden;">
+            <img id="image-to-crop" style="max-width: 100%; display: block;" />
+        </div>
+        <div style="display:flex; gap:10px; margin-top:15px;">
+            <button class="modal-btn save" id="save-crop-btn">تایید و آپلود</button>
+            <button class="modal-btn close" id="close-crop-btn" style="width:40%;">انصراف</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+export function renderDiceBearModal(user: User, avatars: StoreItem[]): string {
   let gridHtml = '';
   avatars.forEach(item => { gridHtml += `<img src="${item.url}" class="avatar-option ${user.avatar === item.url ? 'selected' : ''}" data-url="${item.url}" />`; });
-  gridHtml += `<div class="avatar-option" id="btn-upload-avatar" style="display:flex;align-items:center;justify-content:center;font-size:24px;background:#2a2e38;color:white;cursor:pointer;">${ICON_PLUS}</div>`;
-  return `<div id="avatar-modal" class="modal"><div class="modal-content"><h3 style="text-align:center; margin-bottom:15px;">انتخاب آواتار</h3><div class="avatar-grid" id="avatar-grid">${gridHtml}</div><input type="file" id="avatar-file-input" accept="image/*" style="display:none;"><button class="modal-btn save" id="save-avatar-btn">تایید</button><button class="modal-btn close" id="close-avatar-btn">انصراف</button></div></div>`;
+  return `<div id="dicebear-modal" class="modal"><div class="modal-content"><h3 style="text-align:center; margin-bottom:15px;">انتخاب آواتار</h3><div class="avatar-grid" id="dicebear-grid">${gridHtml}</div><button class="modal-btn save" id="save-dicebear-btn">تایید</button><button class="modal-btn close" id="close-dicebear-btn">انصراف</button></div></div>`;
 }
 
 export function renderEditModal(user: User): string {

@@ -24,15 +24,15 @@ export async function updateProfile(patch: any): Promise<{ok: boolean, error?: s
   } catch(e) { logError('Update profile network error', e); return {ok: false, error: 'Network error'}; }
 }
 
-export async function uploadImage(file: File): Promise<{ok: boolean, url?: string, error?: string}> {
+export async function uploadImage(file: File | Blob): Promise<{ok: boolean, url?: string, error?: string}> {
   const p = new URLSearchParams(location.search).get('id'); 
   if (!p) return {ok: false, error: 'No ID'};
   const token = await fetchToken(parseInt(p, 10)); 
   if (!token) return {ok: false, error: 'Auth error'};
   
-  logInfo('Uploading image:', file.name, 'Size:', file.size);
+  logInfo('Uploading image, size:', file.size);
   const formData = new FormData(); 
-  formData.append('image', file);
+  formData.append('image', file, 'avatar.jpg');
   
   try {
     const r = await fetch('/api/me/upload', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token }, body: formData });

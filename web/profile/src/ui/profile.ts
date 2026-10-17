@@ -47,10 +47,9 @@ function renderProfileCard(user: User, isLiked: boolean, banners: StoreItem[]): 
         <div class="stat-box"><div class="stat-value">${user.wins || 0}</div><div class="stat-label">برد</div></div>
       </div>
       <div class="action-buttons">
-        <button class="btn-square green">💎 ${user.gems || 0}</button>
-        <button class="btn-square">🪙 ${user.coins || 0}</button>
+        <button class="btn-square-small green"><span class="icon-3d">💎</span> ${user.gems || 0}</button>
+        <button class="btn-square-small"><span class="icon-3d">🪙</span> ${user.coins || 0}</button>
       </div>
-      <div style="padding: 0 20px 20px;"><button class="btn-hype">هایپ 🚀</button></div>
     </div>`;
 }
 

@@ -96,3 +96,22 @@ body { font-family: var(--font-family); background-color: var(--bg-color); color
 .toast.success { background: #22c55e; }
 @keyframes slideUp { from { bottom: 0; opacity: 0; } to { bottom: 30px; opacity: 1; } }
 input#username-input { width: 100%; height: 40px; }
+
+/* Avatar Options Modal */
+.avatar-options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.option-btn { background: #2a2e38; border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; position: relative; transition: background 0.2s; }
+.option-btn:hover { background: #3a3e48; }
+.option-btn.active { border-color: var(--accent-blue); }
+.option-btn.locked { opacity: 0.7; }
+.opt-icon { margin-bottom: 8px; color: #8b949e; }
+.opt-label { font-size: 14px; font-weight: 600; }
+.lock-badge { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 10px; display: flex; align-items: center; gap: 4px; font-size: 12px; color: #fbbf24; }
+
+/* 3D Small Buttons */
+.btn-square-small { padding: 8px 16px; border-radius: 12px; background: linear-gradient(135deg, #2a2e38, #1c2028); border: 1px solid rgba(255,255,255,0.05); color: var(--text-main); font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: transform 0.1s; }
+.btn-square-small:hover { transform: scale(1.05); }
+.btn-square-small.green { background: linear-gradient(135deg, #22c55e, #16a34a); border: none; }
+.icon-3d { filter: drop-shadow(0 2px 2px rgba(0,0,0,0.4)); font-size: 18px; }
+
+/* Action Buttons wrapper override */
+.action-buttons { display: flex; justify-content: center; gap: 12px; padding: 20px; border-bottom: 1px solid var(--inner-card-bg); }
