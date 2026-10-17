@@ -1,31 +1,24 @@
-# Runflare-Environment-Variable-Start
-ARG PORT=8080
-# Runflare-Environment-Variable-End
+# --- Stage 1: Build Frontend (TypeScript -> JavaScript) ---
+FROM node:20-alpine AS frontend-builder
+WORKDIR /build
+COPY web/profile/ ./
+RUN npm install -g esbuild && \
+    esbuild app.ts --bundle --minify --target=es2020 --outfile=app.js
 
-ENV GO111MODULE=on \
-    GOOS=linux \
-    GOARCH=amd64
-
+# --- Stage 2: Build Backend (Go) ---
+FROM golang:1.23-alpine AS backend-builder
 WORKDIR /app
 
 COPY go.mod go.sum ./
 RUN go mod download
 
-# دانلود esbuild کامپایل شده برای Alpine (musl)
-RUN apk add --no-cache wget && \
-    wget -q -O /usr/local/bin/esbuild \
-      "https://unpkg.com/@esbuild/linux-x64-musl@0.21.5/bin/esbuild" && \
-    chmod +x /usr/local/bin/esbuild && \
-    esbuild --version
-
 COPY . .
 
-# build TypeScript → JS → embed
+# کپی کردن فایل‌های استاتیک و فایل JS کامپایل شده از مرحله قبل
 RUN mkdir -p internal/web/static && \
     cp web/profile/index.html internal/web/static/ && \
     cp web/profile/style.css internal/web/static/ && \
-    esbuild web/profile/app.ts --bundle --minify --target=es2020 \
-      --outfile=internal/web/static/app.js
+    cp /build/app.js internal/web/static/app.js
 
 RUN go build -o myapp .
 
