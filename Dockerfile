@@ -13,13 +13,9 @@ RUN go mod download
 
 COPY . .
 
-# ساخت پوشه استاتیک برای جلوگیری از خطای go:embed
-RUN mkdir -p internal/web/static && touch internal/web/static/.gitkeep
-
-# تبدیل TS به JS با ابزار Go (تست شده و کار می‌کند)
-RUN go run ./cmd/build-ts
-
-# بیلد نهایی
-RUN go build -o myapp .
+# ترکیب دستورات در یک لایه برای جلوگیری از کش شدن در داکر
+RUN mkdir -p internal/web/static && touch internal/web/static/.gitkeep && \
+    go run ./cmd/build-ts && \
+    go build -o myapp .
 
 ENTRYPOINT ["/app/myapp"]
