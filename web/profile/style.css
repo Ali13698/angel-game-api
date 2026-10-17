@@ -1,28 +1,55 @@
+:root {
+  --bg-color: #0c0f14;
+  --card-bg: #15181e;
+  --inner-card-bg: #1c2028;
+  --text-main: #ffffff;
+  --text-muted: #8b949e;
+  --accent-purple: #8b5cf6;
+  --accent-blue: #3b82f6;
+  --accent-green: #22c55e;
+  --border-radius: 16px;
+  --font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: system-ui, sans-serif; background: #0a0e1a; color: #fff; padding: 16px; }
-.card { max-width: 480px; margin: 0 auto; background: #131826; border-radius: 20px; overflow: hidden; padding-bottom: 20px; }
-.banner { height: 140px; background: linear-gradient(135deg, #7c3aed, #ec4899); }
-.avatar-wrap { margin-top: -60px; display: flex; justify-content: center; }
-.avatar { width: 120px; height: 120px; border-radius: 50%; background: #1a1f3a; border: 4px solid #131826; display: flex; align-items: center; justify-content: center; font-size: 56px; overflow: hidden; }
+body { font-family: var(--font-family); background-color: var(--bg-color); color: var(--text-main); padding: 16px; direction: rtl; }
+.container { max-width: 480px; margin: 0 auto; }
+
+/* Profile Card */
+.profile-card { background-color: var(--card-bg); border-radius: var(--border-radius); overflow: hidden; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+.banner { height: 140px; background: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%); position: relative; }
+.avatar-container { display: flex; justify-content: center; margin-top: -60px; }
+.avatar { width: 120px; height: 120px; border-radius: 50%; background-color: #1a1f3a; border: 4px solid var(--card-bg); display: flex; align-items: center; justify-content: center; font-size: 50px; overflow: hidden; }
 .avatar img { width: 100%; height: 100%; object-fit: cover; }
-.name { text-align: center; font-size: 22px; font-weight: 700; margin-top: 10px; }
-.username { text-align: center; color: #7dd3fc; font-size: 13px; margin-top: 4px; }
-.bio { text-align: center; color: #94a3b8; font-size: 14px; margin: 12px 24px; min-height: 20px; }
-.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 16px 20px; text-align: center; }
-.stat-value { font-size: 20px; font-weight: 700; color: #a855f7; }
-.stat-label { font-size: 11px; color: #64748b; margin-top: 4px; }
-.status { text-align: center; color: #64748b; font-size: 14px; padding: 40px 20px; }
-.btn { background: #7c3aed; color: #fff; border: 0; border-radius: 12px; padding: 12px 16px; font-size: 14px; cursor: pointer; width: calc(100% - 40px); margin: 10px 20px; }
-.section { margin-top: 20px; padding: 0 20px; }
-.emoji-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
-.emoji-btn { width: 44px; height: 44px; border-radius: 50%; border: 2px solid transparent; background: #1a1f3a; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-.emoji-btn.active { border-color: #a855f7; }
-.hidden { display: none !important; }
-.modal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 100; }
-.modal-content { background: #131826; padding: 20px; border-radius: 16px; width: 90%; max-width: 320px; }
-.modal-content h3 { text-align: center; margin-bottom: 16px; }
-.modal-content input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #334155; background: #0a0e1a; color: #fff; font-family: inherit; margin-bottom: 16px; }
-.modal-actions { display: flex; gap: 8px; }
-.modal-actions button { flex: 1; padding: 10px; border-radius: 8px; border: 0; font-weight: bold; cursor: pointer; }
-#btn-confirm-bio { background: #7c3aed; color: #fff; }
-#btn-cancel-bio { background: #334155; color: #fff; }
+.profile-info { text-align: center; padding: 10px 20px 20px; }
+.name { font-size: 24px; font-weight: 800; color: #c084fc; }
+.username { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
+.bio { margin-top: 12px; font-size: 14px; color: var(--text-main); background-color: var(--inner-card-bg); padding: 8px 16px; border-radius: 20px; display: inline-block; }
+
+/* Stats Row */
+.main-stats { display: flex; justify-content: space-around; padding: 20px; border-bottom: 1px solid var(--inner-card-bg); }
+.stat-box { text-align: center; }
+.stat-value { font-size: 18px; font-weight: 700; color: var(--text-main); }
+.stat-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+/* Action Buttons */
+.action-buttons { display: flex; justify-content: center; gap: 12px; padding: 20px; border-bottom: 1px solid var(--inner-card-bg); }
+.btn-square { width: 50px; height: 50px; border-radius: 12px; background-color: var(--inner-card-bg); border: none; color: var(--text-main); font-size: 20px; cursor: pointer; }
+.btn-square.blue { background-color: var(--accent-blue); }
+.btn-square.green { background-color: var(--accent-green); }
+.btn-hype { width: 100%; padding: 16px; background: linear-gradient(90deg, #06b6d4, #3b82f6); border: none; border-radius: 12px; color: white; font-weight: 700; font-size: 16px; cursor: pointer; margin-top: 10px; }
+
+/* Game Stats Card */
+.game-stats-card { background-color: var(--card-bg); border-radius: var(--border-radius); padding: 16px; margin-bottom: 20px; }
+.game-item { display: flex; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--inner-card-bg); }
+.game-item:last-child { border-bottom: none; }
+.game-icon { width: 60px; height: 60px; border-radius: 12px; background-color: #1a1f3a; display: flex; align-items: center; justify-content: center; font-size: 30px; margin-left: 16px; }
+.game-details { flex: 1; }
+.game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.game-name { font-size: 16px; font-weight: 700; }
+.game-level { font-size: 14px; color: var(--text-muted); }
+.game-rank { font-size: 12px; color: var(--text-muted); margin-left: 8px; }
+.progress-bar { height: 8px; background-color: var(--inner-card-bg); border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
+.progress-fill { height: 100%; background-color: var(--accent-green); border-radius: 4px; }
+.game-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); }
+.game-star { width: 40px; height: 40px; background-color: var(--accent-blue); clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; margin-right: 16px; }

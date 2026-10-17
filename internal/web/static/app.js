@@ -1,19 +1,49 @@
-(()=>{var f="";async function h(t){try{let a=await(await fetch(f+"/api/auth/token?id="+t)).json();return a.ok?a.token:null}catch{return null}}async function c(t){let i=new URLSearchParams(location.search).get("id");if(!i)return!1;let a=await h(parseInt(i,10));if(!a)return!1;try{return(await fetch(f+"/api/me",{method:"PATCH",headers:{Authorization:"Bearer "+a,"Content-Type":"application/json"},body:JSON.stringify(t)})).ok}catch{return!1}}var g=["\u{1F409}","\u{1F98A}","\u{1F31F}","\u{1F43C}","\u{1F981}","\u{1F438}","\u{1F43A}","\u{1F984}","\u{1F42F}","\u{1F428}","\u{1F47E}","\u{1F916}","\u{1F9D1}","\u{1F469}","\u{1F9D4}","\u{1F451}"];function s(t){return String(t||"").replace(/[&<>"']/g,i=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[i])}function r(t,i,a,v){let u=t.display_name||t.game_username||"User"+t.id,p=t.profile_color||"#8b5cf6",b=t.avatar?`<img src="${s(t.avatar)}">`:t.name_emoji||"\u{1F3AE}";i.innerHTML=`
-    <div class="banner"></div>
-    <div class="avatar-wrap"><div class="avatar">${b}</div></div>
-    <div class="name" style="color:${p}">${s(u)}</div>
-    <div class="username">@${s(t.game_username||"unknown")}</div>
-    <div class="bio">${s(t.bio||"---")}</div>
-    <div class="stats">
-      <div><div class="stat-value">${t.coins}</div><div class="stat-label">\u0633\u06A9\u0647</div></div>
-      <div><div class="stat-value">${t.gems}</div><div class="stat-label">\u0627\u0644\u0645\u0627\u0633</div></div>
-      <div><div class="stat-value">${t.level}</div><div class="stat-label">\u0633\u0637\u062D</div></div>
-    </div>
-    <button class="btn" id="btn-edit-bio">\u062A\u063A\u06CC\u06CC\u0631 \u0628\u06CC\u0648</button>
-    <div class="section">
-      <div class="section-title">\u0627\u06CC\u0645\u0648\u062C\u06CC \u0646\u0627\u0645</div>
-      <div class="emoji-row">
-        ${g.map(o=>`<button class="emoji-btn ${t.name_emoji===o?"active":""}" data-emoji="${o}">${o}</button>`).join("")}
+(()=>{var d="";async function g(a){try{let t=await(await fetch(d+"/api/auth/token?id="+a)).json();return t.ok?t.token:null}catch{return null}}async function c(a){let e=new URLSearchParams(location.search).get("id");if(!e)return!1;let t=await g(parseInt(e,10));if(!t)return!1;try{return(await fetch(d+"/api/me",{method:"PATCH",headers:{Authorization:"Bearer "+t,"Content-Type":"application/json"},body:JSON.stringify(a)})).ok}catch{return!1}}var b=[{id:"tank",name:"\u062A\u0627\u0646\u06A9",icon:"\u{1F680}",level:25,rank:"Captain",played:384,won:193,progress:80},{id:"chess",name:"\u0634\u0637\u0631\u0646\u062C",icon:"\u265F\uFE0F",level:16,rank:"Skilled",played:196,won:88,progress:45},{id:"backgammon",name:"\u0628\u06A9\u200C\u06AF\u0645\u0648\u0646",icon:"\u{1F3B2}",level:15,rank:"Skilled",played:142,won:60,progress:90},{id:"ludo",name:"\u0645\u0646\u0686",icon:"\u{1F3AF}",level:7,rank:"Gamer",played:47,won:10,progress:30},{id:"basketball",name:"\u0628\u0633\u06A9\u062A\u0628\u0627\u0644",icon:"\u{1F3C0}",level:6,rank:"Beginner",played:16,won:9,progress:50}];function o(a){return String(a||"").replace(/[&<>"']/g,e=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[e])}function r(a,e,t,p){let m=a.display_name||a.game_username||"User"+a.id,u=a.profile_color||"#c084fc",l=`
+  <div class="container">
+    <div class="profile-card">
+      <div class="banner"></div>
+      <div class="avatar-container">
+        <div class="avatar">${a.avatar?`<img src="${o(a.avatar)}">`:a.name_emoji||"\u{1F3AE}"}</div>
+      </div>
+      <div class="profile-info">
+        <div class="name" style="color:${u}">${o(m)}</div>
+        <div class="username">@${o(a.game_username||"unknown")}</div>
+        <div class="bio">${o(a.bio||"---")}</div>
+      </div>
+      
+      <div class="main-stats">
+        <div class="stat-box"><div class="stat-value">${a.likes_count||0}</div><div class="stat-label">\u0647\u0627\u0644\u0647</div></div>
+        <div class="stat-box"><div class="stat-value">${a.age_days||0}</div><div class="stat-label">\u0631\u0648\u0632</div></div>
+        <div class="stat-box"><div class="stat-value">${a.wins||0}</div><div class="stat-label">\u0628\u0631\u062F</div></div>
+      </div>
+
+      <div class="action-buttons">
+        <button class="btn-square blue" id="btn-edit-bio">\u270F\uFE0F</button>
+        <button class="btn-square green">\u{1F48E} ${a.gems||0}</button>
+        <button class="btn-square">\u{1FA99} ${a.coins||0}</button>
+      </div>
+      
+      <div style="padding: 0 20px 20px;">
+         <button class="btn-hype">\u0647\u0627\u06CC\u067E \u{1F680}</button>
       </div>
     </div>
-  `,document.getElementById("btn-edit-bio")?.addEventListener("click",a),document.querySelectorAll(".emoji-btn").forEach(o=>{o.addEventListener("click",()=>{let m=o.dataset.emoji;m&&v(m)})})}var e=document.getElementById("app"),n=null;async function y(){let t=new URLSearchParams(location.search).get("id");if(!t){e&&(e.innerHTML='<div class="status">No ID</div>');return}try{let a=await(await fetch("/api/profile/"+t)).json();if(!a.ok){e&&(e.innerHTML='<div class="status">Not Found</div>');return}n=a.user,e&&r(n,e,l,d)}catch{e&&(e.innerHTML='<div class="status">Error</div>')}}function l(){let t=prompt("\u0628\u06CC\u0648 \u062C\u062F\u06CC\u062F:",n?.bio||"");t!==null&&c({bio:t}).then(i=>{i&&n&&e&&(n.bio=t,r(n,e,l,d))})}function d(t){c({name_emoji:t}).then(i=>{i&&n&&e&&(n.name_emoji=t,r(n,e,l,d))})}y();})();
+
+    <div class="section-title" style="margin-bottom: 10px; color:#8b949e;">\u0622\u0645\u0627\u0631 \u0645\u0646</div>
+    <div class="game-stats-card">
+  `;b.forEach(n=>{l+=`
+      <div class="game-item">
+        <div class="game-icon">${n.icon}</div>
+        <div class="game-details">
+          <div class="game-header">
+            <div><span class="game-name">${n.name}</span> <span class="game-rank">${n.rank}</span></div>
+            <div class="game-level">\u0645\u0631\u062D\u0644\u0647 ${n.level}</div>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width: ${n.progress}%"></div></div>
+          <div class="game-meta">
+            <span>${n.played} \u0628\u0627\u0632\u06CC \u06A9\u0631\u062F\u0647</span>
+            <span>${n.won} \u0628\u0631\u0646\u062F\u0647 \u0634\u062F\u0647</span>
+          </div>
+        </div>
+        <div class="game-star">${n.level}</div>
+      </div>
+    `}),l+="</div></div>",e.innerHTML=l,document.getElementById("btn-edit-bio")?.addEventListener("click",t)}var i=document.getElementById("app"),s=null;async function f(){let a=new URLSearchParams(location.search).get("id");if(!a){i&&(i.innerHTML='<div style="text-align:center;padding:20px;">No ID</div>');return}try{let t=await(await fetch("/api/profile/"+a)).json();if(!t.ok){i&&(i.innerHTML='<div style="text-align:center;padding:20px;">Not Found</div>');return}s=t.user,i&&r(s,i,v,()=>{})}catch{i&&(i.innerHTML='<div style="text-align:center;padding:20px;">Error</div>')}}function v(){let a=prompt("\u0628\u06CC\u0648 \u062C\u062F\u06CC\u062F:",s?.bio||"");a!==null&&c({bio:a}).then(e=>{e&&s&&i&&(s.bio=a,r(s,i,v,()=>{}))})}f();})();
