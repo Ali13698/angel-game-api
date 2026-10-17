@@ -3,6 +3,7 @@ package profile
 import (
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -13,9 +14,12 @@ import (
 func Register(mux *http.ServeMux) {
 	mux.HandleFunc("/api/profile/", handleProfile)
 	mux.HandleFunc("/api/me", handleMe)
+	mux.HandleFunc("/api/me/upload", handleUpload)
+	log.Printf("[PROFILE] Routes registered")
 }
 
 func handleProfile(w http.ResponseWriter, r *http.Request) {
+	log.Printf("[API] GET %s", r.URL.Path)
 	if r.Method != http.MethodGet { http.Error(w, "GET only", 405); return }
 	parts := strings.Split(strings.TrimPrefix(r.URL.Path, "/api/profile/"), "/")
 	if len(parts) == 0 || parts[0] == "" { writeJSON(w, 400, map[string]any{"ok": false, "error": "id required"}); return }
@@ -23,11 +27,14 @@ func handleProfile(w http.ResponseWriter, r *http.Request) {
 	if err != nil { writeJSON(w, 400, map[string]any{"ok": false, "error": "bad id"}); return }
 	u, err := GetByID(r.Context(), id)
 	if err != nil { writeJSON(w, 404, map[string]any{"ok": false, "error": err.Error()}); return }
-	writeJSON(w, 200, map[string]any{"ok": true, "user": u})
+	
+	stats, _ := GetGameStats(r.Context(), id)
+	writeJSON(w, 200, map[string]any{"ok": true, "user": u, "stats": stats})
 }
 
 type updateReq struct {
 	DisplayName  *string `json:"display_name,omitempty"`
+	GameUsername *string `json:"game_username,omitempty"`
 	Bio          *string `json:"bio,omitempty"`
 	Avatar       *string `json:"avatar,omitempty"`
 	NameEmoji    *string `json:"name_emoji,omitempty"`
@@ -40,26 +47,35 @@ type updateReq struct {
 }
 
 func handleMe(w http.ResponseWriter, r *http.Request) {
+	log.Printf("[API] %s %s", r.Method, r.URL.Path)
 	uid, err := authFromReq(r)
-	if err != nil { writeJSON(w, 401, map[string]any{"ok": false, "error": err.Error()}); return }
+	if err != nil { 
+		log.Printf("[API] Auth failed: %v", err)
+		writeJSON(w, 401, map[string]any{"ok": false, "error": err.Error()}); 
+		return 
+	}
 
 	if r.Method == http.MethodGet {
 		u, err := GetByID(r.Context(), uid)
 		if err != nil { writeJSON(w, 404, map[string]any{"ok": false, "error": err.Error()}); return }
-		writeJSON(w, 200, map[string]any{"ok": true, "user": u})
+		stats, _ := GetGameStats(r.Context(), uid)
+		writeJSON(w, 200, map[string]any{"ok": true, "user": u, "stats": stats})
 		return
 	}
 	if r.Method == http.MethodPatch {
 		body, _ := io.ReadAll(io.LimitReader(r.Body, 4096))
 		var req updateReq
 		if err := json.Unmarshal(body, &req); err != nil {
+			log.Printf("[API] Bad JSON: %v", err)
 			writeJSON(w, 400, map[string]any{"ok": false, "error": "bad json"}); return
 		}
 		if err := UpdateMe(r.Context(), uid, &req); err != nil {
-			writeJSON(w, 500, map[string]any{"ok": false, "error": err.Error()}); return
+			log.Printf("[API] UpdateMe failed: %v", err)
+			writeJSON(w, 400, map[string]any{"ok": false, "error": err.Error()}); return
 		}
 		u, _ := GetByID(r.Context(), uid)
-		writeJSON(w, 200, map[string]any{"ok": true, "user": u})
+		stats, _ := GetGameStats(r.Context(), uid)
+		writeJSON(w, 200, map[string]any{"ok": true, "user": u, "stats": stats})
 		return
 	}
 	http.Error(w, "method not allowed", 405)

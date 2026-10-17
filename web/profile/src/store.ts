@@ -1,4 +1,4 @@
-export interface StoreItem { id: string; type: 'banner' | 'avatar' | 'frame' | 'hat'; url: string; price: number; owned: boolean; }
+import { StoreItem } from './types';
 export const DEFAULT_BANNERS: StoreItem[] = [
   { id: 'b1', type: 'banner', url: 'linear-gradient(135deg, #7c3aed 0%, #ec4899 100%)', price: 0, owned: true },
   { id: 'b2', type: 'banner', url: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)', price: 0, owned: true },
