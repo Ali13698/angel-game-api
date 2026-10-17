@@ -8,6 +8,11 @@ function render(user, stats, appEl, onSaveProfile) {
     const displayName = user.display_name || user.game_username || ('User' + user.id);
     const avatarContent = user.avatar ? `<img src="${escapeHtml(user.avatar)}">` : (user.name_emoji || '🎮');
     
+    // Like Logic
+    const isLiked = localStorage.getItem('liked_' + user.id) === 'true';
+    const heartColor = isLiked ? '#ef4444' : '#ffffff';
+    const likesCount = user.likes_count || 0;
+
     let statsHtml = '';
     if (!stats || stats.length === 0) {
         statsHtml = `<div class="game-stats-card"><div style="text-align:center;padding:20px;color:#8b949e;">هنوز آماری ثبت نشده است.</div></div>`;
@@ -29,13 +34,16 @@ function render(user, stats, appEl, onSaveProfile) {
         <div class="profile-card">
             <div class="banner"></div>
             <div class="avatar-container"><div class="avatar" id="btn-edit-avatar">${avatarContent}</div></div>
-            <div class="profile-info">
+            <div class="profile-info" style="padding-top: 70px;">
                 <div class="name" style="color:${user.profile_color || '#c084fc'}">${escapeHtml(displayName)}</div>
                 <div class="username">@${escapeHtml(user.game_username || 'unknown')}</div>
                 <div class="bio">${escapeHtml(user.bio || '---')}</div>
             </div>
             <div class="main-stats">
-                <div class="stat-box"><div class="stat-value">${user.likes_count || 0}</div><div class="stat-label">هاله</div></div>
+                <div class="stat-box" id="like-box" style="cursor:pointer;">
+                    <div class="stat-value" id="heart-icon" style="color:${heartColor}; font-size:24px; line-height:1;">❤</div>
+                    <div class="stat-label" id="likes-count" style="margin-top:4px;">${likesCount}</div>
+                </div>
                 <div class="stat-box"><div class="stat-value">${user.age_days || 0}</div><div class="stat-label">روز</div></div>
                 <div class="stat-box"><div class="stat-value">${user.wins || 0}</div><div class="stat-label">برد</div></div>
             </div>
@@ -65,6 +73,19 @@ function render(user, stats, appEl, onSaveProfile) {
     document.getElementById('close-modal-btn')?.addEventListener('click', () => modal?.classList.remove('active'));
     document.querySelectorAll('.avatar-option').forEach(img => img.addEventListener('click', (e) => { document.querySelectorAll('.avatar-option').forEach(i => i.classList.remove('selected')); (e.target).classList.add('selected'); selectedAvatar = (e.target).getAttribute('data-url') || ''; }));
     document.getElementById('save-profile-btn')?.addEventListener('click', () => onSaveProfile(selectedAvatar, (document.getElementById('bio-input')).value));
+
+    document.getElementById('like-box')?.addEventListener('click', () => {
+        const currentlyLiked = localStorage.getItem('liked_' + user.id) === 'true';
+        if (!currentlyLiked) {
+            localStorage.setItem('liked_' + user.id, 'true');
+            document.getElementById('heart-icon').style.color = '#ef4444';
+            document.getElementById('likes-count').innerText = likesCount + 1;
+        } else {
+            localStorage.setItem('liked_' + user.id, 'false');
+            document.getElementById('heart-icon').style.color = '#ffffff';
+            document.getElementById('likes-count').innerText = likesCount;
+        }
+    });
 }
 
 async function fetchToken(userId) { try { const r = await fetch('/api/auth/token?id=' + userId); const d = await r.json(); return d.ok ? d.token : null; } catch { return null; } }

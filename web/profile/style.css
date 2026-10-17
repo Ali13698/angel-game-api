@@ -66,3 +66,25 @@ body { font-family: var(--font-family); background-color: var(--bg-color); color
 .modal-btn.save { background: var(--accent-blue); color: white; }
 .modal-btn.close { background: transparent; color: var(--text-muted); }
 #btn-edit-avatar { cursor: pointer; }
+
+/* BULLETPROOF Z-INDEX FIX */
+.profile-card {
+    position: relative !important;
+    overflow: hidden !important;
+}
+.banner {
+    position: relative !important;
+    z-index: 1 !important;
+}
+.avatar-container {
+    display: flex !important;
+    justify-content: center !important;
+    margin-top: -60px !important;
+    position: relative !important;
+    z-index: 10 !important;
+}
+.avatar {
+    position: relative !important;
+    z-index: 11 !important;
+    border-radius: 50% !important;
+}
