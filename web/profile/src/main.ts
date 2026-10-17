@@ -13,14 +13,14 @@ async function loadProfile() {
   try {
     const r = await fetch('/api/profile/' + p);
     const d = await r.json();
-    if (!d.ok) throw new Error(d.error || 'User not found in database');
+    if (!d.ok) throw new Error(d.error || 'User not found');
     currentUser = d.user; 
     currentStats = d.stats || [];
     if (appEl && currentUser) {
       render(currentUser, currentStats, DEFAULT_BANNERS, DEFAULT_AVATARS, appEl, handleUpdate, handleUpload, handleLikeClick);
     }
   } catch(e: any) { 
-    if (appEl) appEl.innerHTML = '<div style="text-align:center;padding:20px;color:red;direction:rtl;">خطای دقیق:<br>' + e.message + '</div>'; 
+    if (appEl) appEl.innerHTML = '<div style="text-align:center;padding:20px;color:red;direction:rtl;">Error: ' + e.message + '</div>'; 
   }
 }
 
@@ -35,7 +35,7 @@ async function handleUpload(file: File, type: 'avatar' | 'banner') {
   if (!currentUser || !appEl) return;
   const url = await uploadImage(file, type);
   if (url) { const patch = type === 'avatar' ? { avatar: url } : { banner_id: `url("${url}")` }; await handleUpdate(patch); } 
-  else { alert('خطا در آپلود عکس (شاید MinIO در دسترس نیست)'); }
+  else { alert('خطا در آپلود عکس'); }
 }
 
 function handleLikeClick() {
