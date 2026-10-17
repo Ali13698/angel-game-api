@@ -4,6 +4,7 @@ import (
 	"embed"
 	"io/fs"
 	"net/http"
+	"strings"
 )
 
 //go:embed all:static
@@ -13,9 +14,17 @@ func Register(mux *http.ServeMux) {
 	sub, err := fs.Sub(staticFS, "static")
 	if err != nil { return }
 	
-	// سرو کردن فایل‌ها با http.FileServer
 	fileServer := http.FileServer(http.FS(sub))
 	
-	// برای اینکه وقتی /profile/ باز شد، index.html لود بشه
-	mux.Handle("/profile/", http.StripPrefix("/profile/", fileServer))
+	// هندلر اختصاصی برای تنظیم دقیق Content-Type
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasSuffix(r.URL.Path, ".js") {
+			w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+		} else if strings.HasSuffix(r.URL.Path, ".css") {
+			w.Header().Set("Content-Type", "text/css; charset=utf-8")
+		}
+		fileServer.ServeHTTP(w, r)
+	})
+	
+	mux.Handle("/profile/", http.StripPrefix("/profile/", handler))
 }
