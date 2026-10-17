@@ -11,10 +11,10 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 
-# دانلود esbuild binary از unpkg (بدون Node/npm)
+# دانلود esbuild کامپایل شده برای Alpine (musl)
 RUN apk add --no-cache wget && \
     wget -q -O /usr/local/bin/esbuild \
-      "https://unpkg.com/@esbuild/linux-x64@0.21.5/bin/esbuild" && \
+      "https://unpkg.com/@esbuild/linux-x64-musl@0.21.5/bin/esbuild" && \
     chmod +x /usr/local/bin/esbuild && \
     esbuild --version
 
