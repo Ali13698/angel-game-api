@@ -1,49 +1,96 @@
-(()=>{var d="";async function g(a){try{let t=await(await fetch(d+"/api/auth/token?id="+a)).json();return t.ok?t.token:null}catch{return null}}async function c(a){let e=new URLSearchParams(location.search).get("id");if(!e)return!1;let t=await g(parseInt(e,10));if(!t)return!1;try{return(await fetch(d+"/api/me",{method:"PATCH",headers:{Authorization:"Bearer "+t,"Content-Type":"application/json"},body:JSON.stringify(a)})).ok}catch{return!1}}var b=[{id:"tank",name:"\u062A\u0627\u0646\u06A9",icon:"\u{1F680}",level:25,rank:"Captain",played:384,won:193,progress:80},{id:"chess",name:"\u0634\u0637\u0631\u0646\u062C",icon:"\u265F\uFE0F",level:16,rank:"Skilled",played:196,won:88,progress:45},{id:"backgammon",name:"\u0628\u06A9\u200C\u06AF\u0645\u0648\u0646",icon:"\u{1F3B2}",level:15,rank:"Skilled",played:142,won:60,progress:90},{id:"ludo",name:"\u0645\u0646\u0686",icon:"\u{1F3AF}",level:7,rank:"Gamer",played:47,won:10,progress:30},{id:"basketball",name:"\u0628\u0633\u06A9\u062A\u0628\u0627\u0644",icon:"\u{1F3C0}",level:6,rank:"Beginner",played:16,won:9,progress:50}];function o(a){return String(a||"").replace(/[&<>"']/g,e=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[e])}function r(a,e,t,p){let m=a.display_name||a.game_username||"User"+a.id,u=a.profile_color||"#c084fc",l=`
-  <div class="container">
-    <div class="profile-card">
-      <div class="banner"></div>
-      <div class="avatar-container">
-        <div class="avatar">${a.avatar?`<img src="${o(a.avatar)}">`:a.name_emoji||"\u{1F3AE}"}</div>
-      </div>
-      <div class="profile-info">
-        <div class="name" style="color:${u}">${o(m)}</div>
-        <div class="username">@${o(a.game_username||"unknown")}</div>
-        <div class="bio">${o(a.bio||"---")}</div>
-      </div>
-      
-      <div class="main-stats">
-        <div class="stat-box"><div class="stat-value">${a.likes_count||0}</div><div class="stat-label">\u0647\u0627\u0644\u0647</div></div>
-        <div class="stat-box"><div class="stat-value">${a.age_days||0}</div><div class="stat-label">\u0631\u0648\u0632</div></div>
-        <div class="stat-box"><div class="stat-value">${a.wins||0}</div><div class="stat-label">\u0628\u0631\u062F</div></div>
-      </div>
 
-      <div class="action-buttons">
-        <button class="btn-square blue" id="btn-edit-bio">\u270F\uFE0F</button>
-        <button class="btn-square green">\u{1F48E} ${a.gems||0}</button>
-        <button class="btn-square">\u{1FA99} ${a.coins||0}</button>
-      </div>
-      
-      <div style="padding: 0 20px 20px;">
-         <button class="btn-hype">\u0647\u0627\u06CC\u067E \u{1F680}</button>
-      </div>
-    </div>
+const GAME_INFO = { 'ludo': { name: 'منچ', icon: '🎯' }, 'backgammon': { name: 'بک‌گمون', icon: '🎲' }, 'chess': { name: 'شطرنج', icon: '♟️' }, 'football': { name: 'فوتبال دستی', icon: '⚽' }, 'billiards': { name: 'بیلیارد', icon: '🎱' } };
+const DICEBEAR_STYLES = ['adventurer', 'avataaars', 'bottts', 'fun-emoji', 'lorelei', 'micah', 'miniavs', 'notionists', 'open-peeps', 'personas'];
+const AVATARS = Array.from({ length: 10 }, (_, i) => `https://api.dicebear.com/7.x/${DICEBEAR_STYLES[i % 10]}/svg?seed=Angel${i + 1}`);
+function escapeHtml(s) { return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-    <div class="section-title" style="margin-bottom: 10px; color:#8b949e;">\u0622\u0645\u0627\u0631 \u0645\u0646</div>
-    <div class="game-stats-card">
-  `;b.forEach(n=>{l+=`
-      <div class="game-item">
-        <div class="game-icon">${n.icon}</div>
-        <div class="game-details">
-          <div class="game-header">
-            <div><span class="game-name">${n.name}</span> <span class="game-rank">${n.rank}</span></div>
-            <div class="game-level">\u0645\u0631\u062D\u0644\u0647 ${n.level}</div>
-          </div>
-          <div class="progress-bar"><div class="progress-fill" style="width: ${n.progress}%"></div></div>
-          <div class="game-meta">
-            <span>${n.played} \u0628\u0627\u0632\u06CC \u06A9\u0631\u062F\u0647</span>
-            <span>${n.won} \u0628\u0631\u0646\u062F\u0647 \u0634\u062F\u0647</span>
-          </div>
+function render(user, stats, appEl, onSaveProfile) {
+    const displayName = user.display_name || user.game_username || ('User' + user.id);
+    const avatarContent = user.avatar ? `<img src="${escapeHtml(user.avatar)}">` : (user.name_emoji || '🎮');
+    
+    let statsHtml = '';
+    if (!stats || stats.length === 0) {
+        statsHtml = `<div class="game-stats-card"><div style="text-align:center;padding:20px;color:#8b949e;">هنوز آماری ثبت نشده است.</div></div>`;
+    } else {
+        statsHtml = `<div class="game-stats-card">`;
+        stats.forEach(g => {
+            const info = GAME_INFO[g.game_id] || { name: g.game_id, icon: '🎮' };
+            const winRate = g.games_played > 0 ? Math.round((g.wins / g.games_played) * 100) : 0;
+            statsHtml += `<div class="game-item"><div class="game-icon">${info.icon}</div><div class="game-details"><div class="game-header"><div><span class="game-name">${info.name}</span></div><div class="game-level">مرحله ${g.level}</div></div><div class="progress-bar"><div class="progress-fill" style="width: ${winRate}%"></div></div><div class="game-meta"><span>${g.games_played} بازی کرده</span><span>${g.wins} برنده شده</span></div></div><div class="game-star">${g.level}</div></div>`;
+        });
+        statsHtml += `</div>`;
+    }
+
+    let gridHtml = '';
+    AVATARS.forEach(url => { gridHtml += `<img src="${url}" class="avatar-option ${user.avatar === url ? 'selected' : ''}" data-url="${url}" />`; });
+
+    appEl.innerHTML = `
+    <div class="container">
+        <div class="profile-card">
+            <div class="banner"></div>
+            <div class="avatar-container"><div class="avatar" id="btn-edit-avatar">${avatarContent}</div></div>
+            <div class="profile-info">
+                <div class="name" style="color:${user.profile_color || '#c084fc'}">${escapeHtml(displayName)}</div>
+                <div class="username">@${escapeHtml(user.game_username || 'unknown')}</div>
+                <div class="bio">${escapeHtml(user.bio || '---')}</div>
+            </div>
+            <div class="main-stats">
+                <div class="stat-box"><div class="stat-value">${user.likes_count || 0}</div><div class="stat-label">هاله</div></div>
+                <div class="stat-box"><div class="stat-value">${user.age_days || 0}</div><div class="stat-label">روز</div></div>
+                <div class="stat-box"><div class="stat-value">${user.wins || 0}</div><div class="stat-label">برد</div></div>
+            </div>
+            <div class="action-buttons">
+                <button class="btn-square blue" id="btn-edit-bio">✏️</button>
+                <button class="btn-square green">💎 ${user.gems || 0}</button>
+                <button class="btn-square">🪙 ${user.coins || 0}</button>
+            </div>
+            <div style="padding: 0 20px 20px;"><button class="btn-hype">هایپ 🚀</button></div>
         </div>
-        <div class="game-star">${n.level}</div>
-      </div>
-    `}),l+="</div></div>",e.innerHTML=l,document.getElementById("btn-edit-bio")?.addEventListener("click",t)}var i=document.getElementById("app"),s=null;async function f(){let a=new URLSearchParams(location.search).get("id");if(!a){i&&(i.innerHTML='<div style="text-align:center;padding:20px;">No ID</div>');return}try{let t=await(await fetch("/api/profile/"+a)).json();if(!t.ok){i&&(i.innerHTML='<div style="text-align:center;padding:20px;">Not Found</div>');return}s=t.user,i&&r(s,i,v,()=>{})}catch{i&&(i.innerHTML='<div style="text-align:center;padding:20px;">Error</div>')}}function v(){let a=prompt("\u0628\u06CC\u0648 \u062C\u062F\u06CC\u062F:",s?.bio||"");a!==null&&c({bio:a}).then(e=>{e&&s&&i&&(s.bio=a,r(s,i,v,()=>{}))})}f();})();
+        <div class="section-title" style="margin-bottom: 10px; color:#8b949e;">آمار من</div>
+        ${statsHtml}
+    </div>
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <h3 style="text-align:center; margin-bottom:15px;">ویرایش پروفایل</h3>
+            <div class="avatar-grid" id="avatar-grid">${gridHtml}</div>
+            <textarea id="bio-input" placeholder="بیوگرافی...">${escapeHtml(user.bio || '')}</textarea>
+            <button class="modal-btn save" id="save-profile-btn">ذخیره</button>
+            <button class="modal-btn close" id="close-modal-btn">انصراف</button>
+        </div>
+    </div>`;
+
+    let selectedAvatar = user.avatar || '';
+    const modal = document.getElementById('edit-modal');
+    [document.getElementById('btn-edit-avatar'), document.getElementById('btn-edit-bio')].forEach(btn => btn?.addEventListener('click', () => modal?.classList.add('active')));
+    document.getElementById('close-modal-btn')?.addEventListener('click', () => modal?.classList.remove('active'));
+    document.querySelectorAll('.avatar-option').forEach(img => img.addEventListener('click', (e) => { document.querySelectorAll('.avatar-option').forEach(i => i.classList.remove('selected')); (e.target).classList.add('selected'); selectedAvatar = (e.target).getAttribute('data-url') || ''; }));
+    document.getElementById('save-profile-btn')?.addEventListener('click', () => onSaveProfile(selectedAvatar, (document.getElementById('bio-input')).value));
+}
+
+async function fetchToken(userId) { try { const r = await fetch('/api/auth/token?id=' + userId); const d = await r.json(); return d.ok ? d.token : null; } catch { return null; } }
+async function updateProfile(patch) {
+    const p = new URLSearchParams(location.search).get('id'); if (!p) return false;
+    const token = await fetchToken(parseInt(p, 10)); if (!token) return false;
+    try { const r = await fetch('/api/me', { method: 'PATCH', headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify(patch) }); return r.ok; } catch { return false; }
+}
+
+const appEl = document.getElementById('app');
+let currentUser = null;
+let currentStats = [];
+async function loadProfile() {
+    const p = new URLSearchParams(location.search).get('id');
+    if (!p) { if (appEl) appEl.innerHTML = '<div style="text-align:center;padding:20px;">No ID</div>'; return; }
+    try {
+        const r = await fetch('/api/profile/' + p);
+        const d = await r.json();
+        if (!d.ok) { if (appEl) appEl.innerHTML = '<div style="text-align:center;padding:20px;">Not Found</div>'; return; }
+        currentUser = d.user; currentStats = d.stats || [];
+        if (appEl && currentUser) render(currentUser, currentStats, appEl, handleSaveProfile);
+    } catch(e) { if (appEl) appEl.innerHTML = '<div style="text-align:center;padding:20px;">Error</div>'; }
+}
+async function handleSaveProfile(avatar, bio) {
+    if (!currentUser) return;
+    const ok = await updateProfile({ avatar, bio });
+    if (ok && appEl) { currentUser.avatar = avatar; currentUser.bio = bio; render(currentUser, currentStats, appEl, handleSaveProfile); document.getElementById('edit-modal')?.classList.remove('active'); } else { alert('خطا در ذخیره اطلاعات'); }
+}
+loadProfile();
