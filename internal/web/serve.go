@@ -13,10 +13,7 @@ var staticFS embed.FS
 func Register(mux *http.ServeMux) {
 	sub, err := fs.Sub(staticFS, "static")
 	if err != nil { return }
-	
 	fileServer := http.FileServer(http.FS(sub))
-	
-	// هندلر اختصاصی برای تنظیم دقیق Content-Type
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasSuffix(r.URL.Path, ".js") {
 			w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
@@ -25,6 +22,5 @@ func Register(mux *http.ServeMux) {
 		}
 		fileServer.ServeHTTP(w, r)
 	})
-	
 	mux.Handle("/profile/", http.StripPrefix("/profile/", handler))
 }

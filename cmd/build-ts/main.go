@@ -19,9 +19,8 @@ func copyFile(src, dst string) {
 }
 
 func main() {
-	log.Println("[build-ts] compiling TS and copying assets...")
-	
 	os.MkdirAll("internal/web/static", 0755)
+	os.Remove("internal/web/static/app.js")
 
 	result := api.Build(api.BuildOptions{
 		EntryPoints:       []string{"web/profile/app.ts"},
@@ -30,14 +29,13 @@ func main() {
 		MinifyIdentifiers: true,
 		MinifySyntax:      true,
 		Write:             true,
-		Outfile:           "internal/web/static/app.v2.js",
+		Outfile:           "internal/web/static/app.js",
 	})
 	if len(result.Errors) > 0 {
 		log.Fatalf("[build-ts] errors: %v", result.Errors)
 	}
 	
 	copyFile("web/profile/index.html", "internal/web/static/index.html")
-	copyFile("web/profile/style.css", "internal/web/static/style.v2.css")
-	
-	log.Println("[build-ts] OK: app.v2.js, index.html, style.v2.css ready.")
+	copyFile("web/profile/style.css", "internal/web/static/style.css")
+	log.Println("[build-ts] OK.")
 }
