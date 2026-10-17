@@ -15,3 +15,13 @@ export async function uploadImage(file: File, type: 'avatar' | 'banner'): Promis
     const d = await r.json(); return d.ok ? d.url : null;
   } catch { return null; }
 }
+
+export async function uploadImage(file: File, type: 'avatar' | 'banner'): Promise<string | null> {
+  const p = new URLSearchParams(location.search).get('id'); if (!p) return null;
+  const token = await fetchToken(parseInt(p, 10)); if (!token) return null;
+  const formData = new FormData(); formData.append('image', file);
+  try {
+    const r = await fetch('/api/me/upload?type=' + type, { method: 'POST', headers: { 'Authorization': 'Bearer ' + token }, body: formData });
+    const d = await r.json(); return d.ok ? d.url : null;
+  } catch { return null; }
+}
