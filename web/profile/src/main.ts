@@ -11,18 +11,21 @@ async function loadProfile() {
     const r = await fetch('/api/profile/' + p); const d = await r.json();
     if (!d.ok) { if (appEl) appEl.innerHTML = '<div style="text-align:center;padding:20px;">Not Found</div>'; return; }
     currentUser = d.user; currentStats = d.stats || [];
-    if (appEl && currentUser) render(currentUser, currentStats, appEl, handleSaveProfile, handleLikeClick);
+    if (appEl && currentUser) render(currentUser, currentStats, appEl, handleUpdate, handleLikeClick);
   } catch(e) { if (appEl) appEl.innerHTML = '<div style="text-align:center;padding:20px;">Error</div>'; }
 }
-async function handleSaveProfile(avatar: string, bio: string) {
+async function handleUpdate(patch: any) {
   if (!currentUser) return;
-  const ok = await updateProfile({ avatar, bio });
-  if (ok && appEl) { currentUser.avatar = avatar; currentUser.bio = bio; render(currentUser, currentStats, appEl, handleSaveProfile, handleLikeClick); document.getElementById('edit-modal')?.classList.remove('active'); } else { alert('خطا در ذخیره اطلاعات'); }
+  const ok = await updateProfile(patch);
+  if (ok && appEl) { 
+    Object.assign(currentUser, patch); 
+    render(currentUser, currentStats, appEl, handleUpdate, handleLikeClick); 
+  } else { alert('خطا در ذخیره اطلاعات'); }
 }
 function handleLikeClick() {
   if (!currentUser) return;
   const isLiked = localStorage.getItem('liked_' + currentUser.id) === 'true';
-  if (!isLiked) { localStorage.setItem('liked_' + currentUser.id, 'true'); document.getElementById('heart-icon')!.style.color = '#ef4444'; document.getElementById('likes-count')!.innerText = (currentUser.likes_count + 1).toString(); }
-  else { localStorage.setItem('liked_' + currentUser.id, 'false'); document.getElementById('heart-icon')!.style.color = '#ffffff'; document.getElementById('likes-count')!.innerText = (currentUser.likes_count).toString(); }
+  if (!isLiked) { localStorage.setItem('liked_' + currentUser.id, 'true'); render(currentUser, currentStats, appEl!, handleUpdate, handleLikeClick); } 
+  else { localStorage.setItem('liked_' + currentUser.id, 'false'); render(currentUser, currentStats, appEl!, handleUpdate, handleLikeClick); }
 }
 loadProfile();

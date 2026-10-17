@@ -1,2 +1,2 @@
-export interface User { id: number; display_name: string; game_username: string; bio: string; avatar: string; name_emoji: string; profile_color: string; coins: number; gems: number; level: number; wins: number; likes_count: number; age_days: number; }
+export interface User { id: number; display_name: string; game_username: string; bio: string; avatar: string; name_emoji: string; profile_color: string; coins: number; gems: number; level: number; wins: number; likes_count: number; age_days: number; banner_id?: string; }
 export interface GameStat { game_id: string; wins: number; losses: number; draws: number; games_played: number; level: number; xp: number; }
