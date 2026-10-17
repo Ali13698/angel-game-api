@@ -13,10 +13,6 @@ RUN go mod download
 
 COPY . .
 
-# ساخت فایل‌های استاتیک با Go و سپس بیلد
-RUN mkdir -p internal/web/static && \
-    go run ./cmd/build-ts && \
-    if [ ! -f "internal/web/static/index.html" ]; then echo "ERROR: index.html not generated!" && exit 1; fi && \
-    go build -o myapp .
+RUN go build -o myapp .
 
 ENTRYPOINT ["/app/myapp"]
