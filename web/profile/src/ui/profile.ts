@@ -10,7 +10,8 @@ export function escapeHtml(s: string): string { return String(s || '').replace(/
 
 function renderProfileCard(user: User, isLiked: boolean, banners: StoreItem[]): string {
   const displayName = user.display_name || user.game_username || ('User' + user.id);
-  const avatarContent = user.avatar ? `<img src="${escapeHtml(user.avatar)}">` : (user.name_emoji || '🎮');
+  const fallbackAvatar = 'https://api.dicebear.com/7.x/adventurer/svg?seed=fallback';
+  const avatarContent = user.avatar ? `<img src="${escapeHtml(user.avatar)}" onerror="this.onerror=null; this.src='${fallbackAvatar}';">` : (user.name_emoji || '🎮');
   const heartFill = isLiked ? '#ef4444' : 'none';
   const heartStroke = isLiked ? '#ef4444' : '#ffffff';
   const heartSvg = ICON_HEART.replace('{fill}', heartFill).replace('{stroke}', heartStroke);

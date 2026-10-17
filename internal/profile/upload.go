@@ -65,21 +65,24 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	
-	// ALWAYS set public policy (this fixes the image not showing bug)
+	// ALWAYS set public policy
 	policy := `{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"AWS":["*"]},"Action":["s3:GetObject"],"Resource":["arn:aws:s3:::` + bucketName + `/*"]}]}`
 	err = storage.Client().SetBucketPolicy(context.Background(), bucketName, policy)
 	if err != nil {
 	    log.Printf("[UPLOAD] SetBucketPolicy warning: %v", err)
+	} else {
+	    log.Printf("[UPLOAD] SetBucketPolicy successful for %s", bucketName)
 	}
 
 	log.Printf("[UPLOAD] Uploading %s to MinIO...", objectName)
-	_, err = storage.Client().PutObject(context.Background(), bucketName, objectName, file, header.Size, minio.PutObjectOptions{ContentType: header.Header.Get("Content-Type")})
+	_, err = storage.Client().PutObject(context.Background(), bucketName, objectName, file, header.Size, minio.PutObjectOptions{ContentType: header.ContentType()})
 	if err != nil { 
 		log.Printf("[UPLOAD] PutObject failed: %v", err)
 		writeJSON(w, 500, map[string]any{"ok": false, "error": "upload failed: " + err.Error()}); 
 		return 
 	}
 
+	// Construct URL
 	fileURL := fmt.Sprintf("https://files.nomi98.com/%s/%s", bucketName, objectName)
 	log.Printf("[UPLOAD] Success! User %d -> %s", uid, fileURL)
 	writeJSON(w, 200, map[string]any{"ok": true, "url": fileURL})

@@ -122,7 +122,10 @@ function attachEvents() {
                   viewMode: 1,
                   dragMode: 'move',
                   autoCropArea: 1,
-                  background: false
+                  background: false,
+                  cropBoxResizable: false, // Fixed size circle
+                  cropBoxMovable: false,   // Fixed position circle
+                  toggleDragModeOnDblclick: false
               });
           };
           reader.readAsDataURL(file);

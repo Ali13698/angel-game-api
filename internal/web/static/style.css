@@ -115,3 +115,23 @@ input#username-input { width: 100%; height: 40px; }
 
 /* Action Buttons wrapper override */
 .action-buttons { display: flex; justify-content: center; gap: 12px; padding: 20px; border-bottom: 1px solid var(--inner-card-bg); }
+
+/* Circle Cropper */
+.cropper-view-box,
+.cropper-face {
+  border-radius: 50% !important;
+}
+.cropper-view-box {
+  outline: 2px solid #3b82f6 !important;
+  outline-color: #3b82f6 !important;
+}
+.cropper-line, .cropper-point {
+  display: none !important; /* Hide resize handles for fixed size */
+}
+/* Ensure avatar img fits perfectly */
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
