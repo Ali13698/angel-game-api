@@ -13,6 +13,10 @@ RUN go mod download
 
 COPY . .
 
+# کامپایل TypeScript به JavaScript با خود Go (بدون نیاز به ابزار خارجی)
+RUN go run ./cmd/build-ts
+
+# بیلد نهایی اپلیکیشن
 RUN go build -o myapp .
 
 ENTRYPOINT ["/app/myapp"]
