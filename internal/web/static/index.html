@@ -8,6 +8,11 @@
 </head>
 <body>
   <div class="card" id="app"><div class="status">Loading...</div></div>
+  <script>
+    window.onerror = function(msg, url, line, col, error) {
+      document.getElementById('app').innerHTML = '<div style="color:red;padding:20px;direction:ltr;text-align:left;font-family:monospace;">JS Error: ' + msg + ' at line ' + line + '</div>';
+    };
+  </script>
   <script type="module" src="app.js?v=10005"></script>
 </body>
 </html>
