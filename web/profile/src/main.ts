@@ -18,9 +18,16 @@ window.addEventListener('unhandledrejection', (event) => {
 
 async function loadProfile() {
   let p = new URLSearchParams(location.search).get('id');
+  
+  if (!p && (window as any).Telegram?.WebApp?.initDataUnsafe?.user?.id) {
       p = (window as any).Telegram.WebApp.initDataUnsafe.user.id.toString();
   }
-  if (!p) { if (appEl) appEl.innerHTML = '<div style="text-align:center;padding:20px;">No ID provided</div>'; return; }
+  
+  if (!p) { 
+      if (appEl) appEl.innerHTML = '<div style="text-align:center;padding:20px;">No ID provided</div>'; 
+      return; 
+  }
+  
   logInfo('Starting profile load for ID:', p);
   try {
     const r = await fetch('/api/profile/' + p);
@@ -47,7 +54,8 @@ function buildUI() {
   document.querySelectorAll('.modal').forEach(m => m.remove());
 
   const modalsWrapper = document.createElement('div');
-  modalsWrapper.innerHTML = renderAvatarOptionsModal() + renderDiceBearModal(currentUser, DEFAULT_AVATARS) + 
+  modalsWrapper.innerHTML = renderAvatarOptionsModal() + 
+                            renderDiceBearModal(currentUser, DEFAULT_AVATARS) + 
                             renderEditModal(currentUser) + 
                             renderBannerModal(DEFAULT_BANNERS) + 
                             renderSettingsModal() +
