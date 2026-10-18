@@ -4,69 +4,41 @@ import { renderApp } from './ui/profile';
 import { renderAvatarOptionsModal, renderDiceBearModal, renderEditModal, renderBannerModal, renderSettingsModal, renderCropperModal } from './ui/modals';
 import { showToast } from './ui/toast';
 import { DEFAULT_BANNERS, DEFAULT_AVATARS } from './store';
-import { logInfo, logError } from './logger';
 
 const appEl = document.getElementById('app');
 let currentUser: User | null = null;
 let currentStats: GameStat[] = [];
 let cropperInstance: any = null;
 
-window.addEventListener('unhandledrejection', (event) => {
-    logError('Unhandled Promise Rejection', event.reason);
-    showToast('خطای غیرمنتظره رخ داد.');
-});
-
 async function loadProfile() {
-  let p = new URLSearchParams(location.search).get('id');
+  const p = new URLSearchParams(location.search).get('id');
+  if (!p) { if (appEl) appEl.innerHTML = '<div style="text-align:center;padding:20px;">No ID provided</div>'; return; }
   
-  if (!p && (window as any).Telegram?.WebApp?.initDataUnsafe?.user?.id) {
-      p = (window as any).Telegram.WebApp.initDataUnsafe.user.id.toString();
-  }
-  
-  if (!p) { 
-      if (appEl) appEl.innerHTML = '<div style="text-align:center;padding:20px;">No ID provided</div>'; 
-      return; 
-  }
-  
-  logInfo('Starting profile load for ID:', p);
   try {
     const r = await fetch('/api/profile/' + p);
     const d = await r.json();
     if (!d.ok) throw new Error(d.error || 'User not found');
-    currentUser = d.user; 
-    currentStats = d.stats || [];
-    logInfo('Profile loaded successfully', currentUser);
-    if (appEl && currentUser) {
-      buildUI();
-    }
+    currentUser = d.user; currentStats = d.stats || [];
+    if (appEl && currentUser) buildUI();
   } catch(e: any) { 
-    logError('Load profile failed', e);
-    if (appEl) appEl.innerHTML = '<div style="text-align:center;padding:20px;color:red;direction:rtl;">Error: ' + e.message + '</div>'; 
+    if (appEl) appEl.innerHTML = '<div style="text-align:center;padding:20px;color:red;">Error: ' + e.message + '</div>'; 
   }
 }
 
 function buildUI() {
   if (!currentUser || !appEl) return;
-  logInfo('Building UI...');
   const isLiked = localStorage.getItem('liked_' + currentUser.id) === 'true';
   renderApp(currentUser, currentStats, DEFAULT_BANNERS, appEl, isLiked);
 
   document.querySelectorAll('.modal').forEach(m => m.remove());
-
   const modalsWrapper = document.createElement('div');
-  modalsWrapper.innerHTML = renderAvatarOptionsModal() + 
-                            renderDiceBearModal(currentUser, DEFAULT_AVATARS) + 
-                            renderEditModal(currentUser) + 
-                            renderBannerModal(DEFAULT_BANNERS) + 
-                            renderSettingsModal() +
-                            renderCropperModal();
+  modalsWrapper.innerHTML = renderAvatarOptionsModal() + renderDiceBearModal(currentUser, DEFAULT_AVATARS) + renderEditModal(currentUser) + renderBannerModal(DEFAULT_BANNERS) + renderSettingsModal() + renderCropperModal();
   document.body.appendChild(modalsWrapper);
   attachEvents();
 }
 
 function attachEvents() {
   if (!currentUser) return;
-  logInfo('Attaching UI events...');
 
   const editModal = document.getElementById('edit-modal');
   document.getElementById('btn-edit-bio')?.addEventListener('click', () => editModal?.classList.add('active'));
@@ -114,23 +86,14 @@ function attachEvents() {
       input.onchange = (e: any) => {
           const file = e.target.files?.[0];
           if (!file) return;
-          
           const reader = new FileReader();
           reader.onload = (ev) => {
               const img = document.getElementById('image-to-crop') as HTMLImageElement;
               img.src = ev.target?.result as string;
               cropperModal?.classList.add('active');
-              
               if (cropperInstance) cropperInstance.destroy();
               cropperInstance = new (window as any).Cropper(img, {
-                  aspectRatio: 1,
-                  viewMode: 1,
-                  dragMode: 'move',
-                  autoCropArea: 1,
-                  background: false,
-                  cropBoxResizable: false,
-                  cropBoxMovable: false,
-                  toggleDragModeOnDblclick: false
+                  aspectRatio: 1, viewMode: 1, dragMode: 'move', autoCropArea: 1, background: false, cropBoxResizable: false, cropBoxMovable: false, toggleDragModeOnDblclick: false
               });
           };
           reader.readAsDataURL(file);
@@ -150,12 +113,8 @@ function attachEvents() {
           cropperModal?.classList.remove('active');
           showToast('در حال آپلود...', 'success');
           const res = await uploadImage(blob);
-          if (res.ok && res.url) {
-              await handleUpdate({ avatar: res.url }); 
-              showToast('آواتار با موفقیت تغییر کرد', 'success');
-          } else {
-              showToast('خطا در آپلود: ' + (res.error || 'ناشناخته'));
-          }
+          if (res.ok && res.url) { await handleUpdate({ avatar: res.url }); showToast('آواتار با موفقیت تغییر کرد', 'success'); } 
+          else { showToast('خطا در آپلود: ' + (res.error || 'ناشناخته')); }
       }, 'image/jpeg', 0.9);
   });
 
@@ -181,12 +140,7 @@ function attachEvents() {
 async function handleUpdate(patch: any) {
   if (!currentUser) return;
   const res = await updateProfile(patch);
-  if (res.ok) { 
-      Object.assign(currentUser, patch); 
-      buildUI(); 
-  } else { 
-      showToast(res.error || 'خطا در ذخیره اطلاعات'); 
-  }
+  if (res.ok) { Object.assign(currentUser, patch); buildUI(); } 
+  else { showToast(res.error || 'خطا در ذخیره اطلاعات'); }
 }
-
 loadProfile();
