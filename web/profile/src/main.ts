@@ -1,7 +1,7 @@
 import { User, GameStat } from './types';
 import { updateProfile, uploadImage } from './api';
 import { renderApp } from './ui/profile';
-import { renderAvatarOptionsModal, renderDicebearModal, renderEditModal, renderBannerModal, renderSettingsModal, renderCropperModal } from './ui/modals';
+import { renderAvatarOptionsModal, renderDiceBearModal, renderEditModal, renderBannerModal, renderSettingsModal, renderCropperModal } from './ui/modals';
 import { showToast } from './ui/toast';
 import { DEFAULT_BANNERS, DEFAULT_AVATARS } from './store';
 
@@ -33,7 +33,7 @@ function buildUI() {
 
   document.querySelectorAll('.modal').forEach(m => m.remove());
   const modalsWrapper = document.createElement('div');
-  modalsWrapper.innerHTML = renderAvatarOptionsModal() + renderDicebearModal(currentUser, DEFAULT_AVATARS) + renderEditModal(currentUser) + renderBannerModal(DEFAULT_BANNERS) + renderSettingsModal() + renderCropperModal();
+  modalsWrapper.innerHTML = renderAvatarOptionsModal() + renderDiceBearModal(currentUser, DEFAULT_AVATARS) + renderEditModal(currentUser) + renderBannerModal(DEFAULT_BANNERS) + renderSettingsModal() + renderCropperModal();
   document.body.appendChild(modalsWrapper);
   attachEvents();
 }
