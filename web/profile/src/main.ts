@@ -1,7 +1,7 @@
 import { User, GameStat } from './types';
 import { updateProfile, uploadImage } from './api';
 import { renderApp } from './ui/profile';
-import { renderAvatarOptionsModal, renderDiceBearModal, renderEditModal, renderBannerModal, renderSettingsModal, renderCropperModal } from './ui/modals';
+import { renderAvatarOptionsModal, renderDicebearModal, renderEditModal, renderBannerModal, renderSettingsModal, renderCropperModal } from './ui/modals';
 import { showToast } from './ui/toast';
 import { DEFAULT_BANNERS, DEFAULT_AVATARS } from './store';
 
@@ -13,15 +13,16 @@ let cropperInstance: any = null;
 async function loadProfile() {
   const p = new URLSearchParams(location.search).get('id');
   if (!p) { if (appEl) appEl.innerHTML = '<div style="text-align:center;padding:20px;">No ID provided</div>'; return; }
-  
+
   try {
     const r = await fetch('/api/profile/' + p);
     const d = await r.json();
     if (!d.ok) throw new Error(d.error || 'User not found');
-    currentUser = d.user; currentStats = d.stats || [];
+    currentUser = d.user;
+    currentStats = d.stats || [];
     if (appEl && currentUser) buildUI();
-  } catch(e: any) { 
-    if (appEl) appEl.innerHTML = '<div style="text-align:center;padding:20px;color:red;">Error: ' + e.message + '</div>'; 
+  } catch(e: any) {
+    if (appEl) appEl.innerHTML = '<div style="text-align:center;padding:20px;color:red;">Error: ' + e.message + '</div>';
   }
 }
 
@@ -32,7 +33,7 @@ function buildUI() {
 
   document.querySelectorAll('.modal').forEach(m => m.remove());
   const modalsWrapper = document.createElement('div');
-  modalsWrapper.innerHTML = renderAvatarOptionsModal() + renderDiceBearModal(currentUser, DEFAULT_AVATARS) + renderEditModal(currentUser) + renderBannerModal(DEFAULT_BANNERS) + renderSettingsModal() + renderCropperModal();
+  modalsWrapper.innerHTML = renderAvatarOptionsModal() + renderDicebearModal(currentUser, DEFAULT_AVATARS) + renderEditModal(currentUser) + renderBannerModal(DEFAULT_BANNERS) + renderSettingsModal() + renderCropperModal();
   document.body.appendChild(modalsWrapper);
   attachEvents();
 }
@@ -46,7 +47,7 @@ function attachEvents() {
   document.getElementById('save-profile-btn')?.addEventListener('click', () => {
     const uname = (document.getElementById('username-input') as HTMLInputElement).value;
     const bio = (document.getElementById('bio-input') as HTMLTextAreaElement).value;
-    if (!/^[a-zA-Z0-9]{1,10}$/.test(uname)) { showToast('نام کاربری فقط حروف و اعداد (حداکثر ۱۰ کاراکتر) باشد'); return; }
+    if (!/^[a-zA-Z0-9]{1,10}$/.test(uname)) { showToast('نام كاربری فطط حررف و اعداد (تاز 10 کاراكتراب) "باشد'); return; }
     handleUpdate({ game_username: uname, bio: bio });
     editModal?.classList.remove('active');
   });
@@ -54,12 +55,12 @@ function attachEvents() {
   const avatarOptsModal = document.getElementById('avatar-options-modal');
   const dicebearModal = document.getElementById('dicebear-modal');
   const cropperModal = document.getElementById('cropper-modal');
-  
+
   document.getElementById('btn-change-avatar')?.addEventListener('click', () => avatarOptsModal?.classList.add('active'));
   document.getElementById('close-avatar-options')?.addEventListener('click', () => avatarOptsModal?.classList.remove('active'));
   
   document.getElementById('opt-gif')?.addEventListener('click', () => showToast('خرید گیف به زودی!', 'error'));
-  document.getElementById('opt-frame')?.addEventListener('click', () => showToast('خرید قاب به زودی!', 'error'));
+  document.getElementById('opt-frame')?.addEventListener('click', () => showToast('خرید قاب به نزدیا!', 'error'));
   
   document.getElementById('opt-dicebear')?.addEventListener('click', () => {
       avatarOptsModal?.classList.remove('active');
@@ -113,7 +114,7 @@ function attachEvents() {
           cropperModal?.classList.remove('active');
           showToast('در حال آپلود...', 'success');
           const res = await uploadImage(blob);
-          if (res.ok && res.url) { await handleUpdate({ avatar: res.url }); showToast('آواتار با موفقیت تغییر کرد', 'success'); } 
+          if (res.ok && res.url) { await handleUpdate({ avatar: res.url }); showToast('آوااتار با موفقیت تغییرکرد', 'success'); }
           else { showToast('خطا در آپلود: ' + (res.error || 'ناشناخته')); }
       }, 'image/jpeg', 0.9);
   });
@@ -127,7 +128,9 @@ function attachEvents() {
   }));
 
   document.getElementById('like-box')?.addEventListener('click', () => {
+      if (!currentUser) return;
       const isLiked = localStorage.getItem('liked_' + currentUser.id) === 'true';
+      if (!isLiked) {
           localStorage.setItem('liked_' + currentUser.id, 'true');
           currentUser.likes_count = (currentUser.likes_count || 0) + 1;
       } else {
@@ -135,7 +138,7 @@ function attachEvents() {
           currentUser.likes_count = Math.max(0, (currentUser.likes_count || 0) - 1);
       }
       buildUI();
-    });
+  });
 
   const settingsModal = document.getElementById('settings-modal');
   document.getElementById('btn-open-settings')?.addEventListener('click', () => settingsModal?.classList.add('active'));
@@ -145,7 +148,8 @@ function attachEvents() {
 async function handleUpdate(patch: any) {
   if (!currentUser) return;
   const res = await updateProfile(patch);
-  if (res.ok) { Object.assign(currentUser, patch); buildUI(); } 
-  else { showToast(res.error || 'خطا در ذخیره اطلاعات'); }
+  if (res.ok) { Object.assign(currentUser, patch); buildUI(); }
+  else { showToast(res.error || 'خطا در ذخیره اطلاعاته'); }
 }
+
 loadProfile();
