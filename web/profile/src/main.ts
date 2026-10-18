@@ -36,17 +36,15 @@ async function loadProfile() {
 function buildUI() {
   if (!currentUser || !appEl) return;
 
-  // 1. Render Main UI safely
   try {
       const isLiked = localStorage.getItem('liked_' + currentUser.id) === 'true';
       renderApp(currentUser, currentStats, DEFAULT_BANNERS, appEl, isLiked);
   } catch (e) {
       logError('Main UI render failed', e);
       appEl.innerHTML = '<div style="color:red;padding:20px;">خطا در نمایش پروفایل</div>';
-      return; // If main UI fails, stop here.
+      return;
   }
 
-  // 2. Render Modals safely
   try {
       document.querySelectorAll('.modal').forEach(m => m.remove());
       const modalsWrapper = document.createElement('div');
@@ -59,15 +57,12 @@ function buildUI() {
       document.body.appendChild(modalsWrapper);
   } catch (e) {
       logError('Modals render failed', e);
-      // Do not crash the whole app, just skip modals
   }
 
-  // 3. Attach Events safely
   try {
       attachEvents();
   } catch (e) {
       logError('Event attachment failed', e);
-      // Do not crash the whole app
   }
 }
 
@@ -164,18 +159,33 @@ function attachEvents() {
       if (bgStyle) { handleUpdate({ banner_id: bgStyle }); bannerModal?.classList.remove('active'); }
   }));
 
-  // UPDATED LIKE LOGIC
+  // FIXED LIKE LOGIC - NO BLINK
   safeListen('like-box', 'click', () => {
       if (!currentUser) return;
       const isLiked = localStorage.getItem('liked_' + currentUser.id) === 'true';
-      if (!isLiked) {
-          localStorage.setItem('liked_' + currentUser.id, 'true');
+      const newIsLiked = !isLiked;
+      
+      localStorage.setItem('liked_' + currentUser.id, String(newIsLiked));
+      
+      if (newIsLiked) {
           currentUser.likes_count = (currentUser.likes_count || 0) + 1;
       } else {
-          localStorage.setItem('liked_' + currentUser.id, 'false');
           currentUser.likes_count = Math.max(0, (currentUser.likes_count || 0) - 1);
       }
-      buildUI();
+      
+      const heartIcon = document.getElementById('heart-icon');
+      const likesCount = document.getElementById('likes-count');
+      
+      if (heartIcon) {
+          const path = heartIcon.querySelector('path');
+          if (path) {
+              path.setAttribute('fill', newIsLiked ? '#ef4444' : 'none');
+              path.setAttribute('stroke', newIsLiked ? '#ef4444' : '#ffffff');
+          }
+      }
+      if (likesCount) {
+          likesCount.innerText = currentUser.likes_count.toString();
+      }
   });
 
   const settingsModal = document.getElementById('settings-modal');
