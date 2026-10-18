@@ -1,7 +1,7 @@
 import { User, GameStat } from './types';
 import { updateProfile, uploadImage } from './api';
 import { renderApp } from './ui/profile';
-import { renderAvatarOptionsModal, renderDiceBearModal, renderEditModal, renderBannerModal, renderSettingsModal, renderCropperModal } from './ui/modals';
+import { renderAvatarModal, renderEditModal, renderBannerModal, renderSettingsModal, renderCropperModal } from './ui/modals';
 import { showToast } from './ui/toast';
 import { DEFAULT_BANNERS, DEFAULT_AVATARS } from './store';
 import { logInfo, logError } from './logger';
@@ -9,7 +9,7 @@ import { logInfo, logError } from './logger';
 const appEl = document.getElementById('app');
 let currentUser: User | null = null;
 let currentStats: GameStat[] = [];
-let cropperInstance: any = null; // For Cropper.js
+let cropperInstance: any = null;
 
 window.addEventListener('unhandledrejection', (event) => {
     logError('Unhandled Promise Rejection', event.reason);
@@ -17,17 +17,15 @@ window.addEventListener('unhandledrejection', (event) => {
 });
 
 async function loadProfile() {
-  let p = new URLSearchParams(location.search).get('id');
-  if (!p && (window as any).Telegram?.WebApp?.initDataUnsafe?.user?.id) {
-      p = (window as any).Telegram.WebApp.initDataUnsafe.user.id.toString();
-  }
+  const p = new URLSearchParams(location.search).get('id');
   if (!p) { if (appEl) appEl.innerHTML = '<div style="text-align:center;padding:20px;">No ID provided</div>'; return; }
   logInfo('Starting profile load for ID:', p);
   try {
     const r = await fetch('/api/profile/' + p);
     const d = await r.json();
     if (!d.ok) throw new Error(d.error || 'User not found');
-    currentUser = d.user; currentStats = d.stats || [];
+    currentUser = d.user; 
+    currentStats = d.stats || [];
     logInfo('Profile loaded successfully', currentUser);
     if (appEl && currentUser) {
       buildUI();
@@ -44,12 +42,10 @@ function buildUI() {
   const isLiked = localStorage.getItem('liked_' + currentUser.id) === 'true';
   renderApp(currentUser, currentStats, DEFAULT_BANNERS, appEl, isLiked);
 
-  // Remove old modals if exist
   document.querySelectorAll('.modal').forEach(m => m.remove());
 
   const modalsWrapper = document.createElement('div');
-  modalsWrapper.innerHTML = renderAvatarOptionsModal() + 
-                            renderDiceBearModal(currentUser, DEFAULT_AVATARS) + 
+  modalsWrapper.innerHTML = renderAvatarModal(currentUser, DEFAULT_AVATARS) + 
                             renderEditModal(currentUser) + 
                             renderBannerModal(DEFAULT_BANNERS) + 
                             renderSettingsModal() +
@@ -62,7 +58,6 @@ function attachEvents() {
   if (!currentUser) return;
   logInfo('Attaching UI events...');
 
-  // --- Profile Edit Modal ---
   const editModal = document.getElementById('edit-modal');
   document.getElementById('btn-edit-bio')?.addEventListener('click', () => editModal?.classList.add('active'));
   document.getElementById('close-edit-btn')?.addEventListener('click', () => editModal?.classList.remove('active'));
@@ -74,7 +69,6 @@ function attachEvents() {
     editModal?.classList.remove('active');
   });
 
-  // --- Avatar Options Modal ---
   const avatarOptsModal = document.getElementById('avatar-options-modal');
   const dicebearModal = document.getElementById('dicebear-modal');
   const cropperModal = document.getElementById('cropper-modal');
@@ -90,7 +84,6 @@ function attachEvents() {
       dicebearModal?.classList.add('active');
   });
 
-  // --- DiceBear Modal ---
   let selectedAvatar = currentUser.avatar || '';
   document.getElementById('close-dicebear-btn')?.addEventListener('click', () => dicebearModal?.classList.remove('active'));
   document.querySelectorAll('#dicebear-grid .avatar-option').forEach(img => img.addEventListener('click', (e) => { 
@@ -103,7 +96,6 @@ function attachEvents() {
       dicebearModal?.classList.remove('active'); 
   });
 
-  // --- Gallery & Cropper Logic ---
   document.getElementById('opt-gallery')?.addEventListener('click', () => {
       avatarOptsModal?.classList.remove('active');
       const input = document.createElement('input');
@@ -126,8 +118,8 @@ function attachEvents() {
                   dragMode: 'move',
                   autoCropArea: 1,
                   background: false,
-                  cropBoxResizable: false, // Fixed size circle
-                  cropBoxMovable: false,   // Fixed position circle
+                  cropBoxResizable: false,
+                  cropBoxMovable: false,
                   toggleDragModeOnDblclick: false
               });
           };
@@ -157,7 +149,6 @@ function attachEvents() {
       }, 'image/jpeg', 0.9);
   });
 
-  // --- Banner Modal ---
   const bannerModal = document.getElementById('banner-modal');
   document.getElementById('btn-edit-banner')?.addEventListener('click', () => bannerModal?.classList.add('active'));
   document.getElementById('close-banner-btn')?.addEventListener('click', () => bannerModal?.classList.remove('active'));
@@ -166,7 +157,6 @@ function attachEvents() {
       if (bgStyle) { handleUpdate({ banner_id: bgStyle }); bannerModal?.classList.remove('active'); }
   }));
 
-  // --- Like & Settings ---
   document.getElementById('like-box')?.addEventListener('click', () => {
       const isLiked = localStorage.getItem('liked_' + currentUser!.id) === 'true';
       localStorage.setItem('liked_' + currentUser!.id, String(!isLiked));
