@@ -4,32 +4,24 @@ package angel;
 
 option go_package = "github.com/angel/angel/internal/wire;wire";
 
-// --- Client -> Server ---
 message ClientMsg {
-  string type = 1; // "join", "leave", "state", "roll", "move", "chat", "ping"
+  string type = 1;
   string id = 2;
   string room_id = 3;
   int64 rev = 4;
-  MovePayload move_payload = 5;
-  ChatPayload chat_payload = 6;
+  string payload_json = 5; 
 }
 
-message MovePayload {
-  int32 token = 1;
-}
-
-message ChatPayload {
-  string text = 1;
-}
-
-// --- Server -> Client ---
 message ServerMsg {
-  string type = 1; // "joined", "event", "pong", "error"
+  string type = 1;
   string room_id = 2;
   string game_id = 3;
   int64 rev = 4;
   GameEvent event = 5;
   ErrorMsg error = 6;
+  string state_json = 7;
+  string from = 8;
+  string payload_json = 9;
 }
 
 message GameEvent {
@@ -37,7 +29,7 @@ message GameEvent {
   string stream_id = 2;
   int64 seq = 3;
   string type = 4;
-  map<string, string> payload = 5; // برای سادگی فعلاً رشته، بعداً می‌تونیم Type-safe کنیم
+  string payload_json = 5; 
 }
 
 message ErrorMsg {

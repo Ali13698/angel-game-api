@@ -21,15 +21,13 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// --- Client -> Server ---
 type ClientMsg struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"` // "join", "leave", "state", "roll", "move", "chat", "ping"
+	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
 	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
 	RoomId        string                 `protobuf:"bytes,3,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
 	Rev           int64                  `protobuf:"varint,4,opt,name=rev,proto3" json:"rev,omitempty"`
-	MovePayload   *MovePayload           `protobuf:"bytes,5,opt,name=move_payload,json=movePayload,proto3" json:"move_payload,omitempty"`
-	ChatPayload   *ChatPayload           `protobuf:"bytes,6,opt,name=chat_payload,json=chatPayload,proto3" json:"chat_payload,omitempty"`
+	PayloadJson   string                 `protobuf:"bytes,5,opt,name=payload_json,json=payloadJson,proto3" json:"payload_json,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -92,124 +90,31 @@ func (x *ClientMsg) GetRev() int64 {
 	return 0
 }
 
-func (x *ClientMsg) GetMovePayload() *MovePayload {
+func (x *ClientMsg) GetPayloadJson() string {
 	if x != nil {
-		return x.MovePayload
-	}
-	return nil
-}
-
-func (x *ClientMsg) GetChatPayload() *ChatPayload {
-	if x != nil {
-		return x.ChatPayload
-	}
-	return nil
-}
-
-type MovePayload struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Token         int32                  `protobuf:"varint,1,opt,name=token,proto3" json:"token,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *MovePayload) Reset() {
-	*x = MovePayload{}
-	mi := &file_angel_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *MovePayload) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*MovePayload) ProtoMessage() {}
-
-func (x *MovePayload) ProtoReflect() protoreflect.Message {
-	mi := &file_angel_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use MovePayload.ProtoReflect.Descriptor instead.
-func (*MovePayload) Descriptor() ([]byte, []int) {
-	return file_angel_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *MovePayload) GetToken() int32 {
-	if x != nil {
-		return x.Token
-	}
-	return 0
-}
-
-type ChatPayload struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Text          string                 `protobuf:"bytes,1,opt,name=text,proto3" json:"text,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ChatPayload) Reset() {
-	*x = ChatPayload{}
-	mi := &file_angel_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ChatPayload) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ChatPayload) ProtoMessage() {}
-
-func (x *ChatPayload) ProtoReflect() protoreflect.Message {
-	mi := &file_angel_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ChatPayload.ProtoReflect.Descriptor instead.
-func (*ChatPayload) Descriptor() ([]byte, []int) {
-	return file_angel_proto_rawDescGZIP(), []int{2}
-}
-
-func (x *ChatPayload) GetText() string {
-	if x != nil {
-		return x.Text
+		return x.PayloadJson
 	}
 	return ""
 }
 
-// --- Server -> Client ---
 type ServerMsg struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"` // "joined", "event", "pong", "error"
+	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
 	RoomId        string                 `protobuf:"bytes,2,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
 	GameId        string                 `protobuf:"bytes,3,opt,name=game_id,json=gameId,proto3" json:"game_id,omitempty"`
 	Rev           int64                  `protobuf:"varint,4,opt,name=rev,proto3" json:"rev,omitempty"`
 	Event         *GameEvent             `protobuf:"bytes,5,opt,name=event,proto3" json:"event,omitempty"`
 	Error         *ErrorMsg              `protobuf:"bytes,6,opt,name=error,proto3" json:"error,omitempty"`
+	StateJson     string                 `protobuf:"bytes,7,opt,name=state_json,json=stateJson,proto3" json:"state_json,omitempty"`
+	From          string                 `protobuf:"bytes,8,opt,name=from,proto3" json:"from,omitempty"`
+	PayloadJson   string                 `protobuf:"bytes,9,opt,name=payload_json,json=payloadJson,proto3" json:"payload_json,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ServerMsg) Reset() {
 	*x = ServerMsg{}
-	mi := &file_angel_proto_msgTypes[3]
+	mi := &file_angel_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -221,7 +126,7 @@ func (x *ServerMsg) String() string {
 func (*ServerMsg) ProtoMessage() {}
 
 func (x *ServerMsg) ProtoReflect() protoreflect.Message {
-	mi := &file_angel_proto_msgTypes[3]
+	mi := &file_angel_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -234,7 +139,7 @@ func (x *ServerMsg) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ServerMsg.ProtoReflect.Descriptor instead.
 func (*ServerMsg) Descriptor() ([]byte, []int) {
-	return file_angel_proto_rawDescGZIP(), []int{3}
+	return file_angel_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *ServerMsg) GetType() string {
@@ -279,20 +184,41 @@ func (x *ServerMsg) GetError() *ErrorMsg {
 	return nil
 }
 
+func (x *ServerMsg) GetStateJson() string {
+	if x != nil {
+		return x.StateJson
+	}
+	return ""
+}
+
+func (x *ServerMsg) GetFrom() string {
+	if x != nil {
+		return x.From
+	}
+	return ""
+}
+
+func (x *ServerMsg) GetPayloadJson() string {
+	if x != nil {
+		return x.PayloadJson
+	}
+	return ""
+}
+
 type GameEvent struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	EventId       string                 `protobuf:"bytes,1,opt,name=event_id,json=eventId,proto3" json:"event_id,omitempty"`
 	StreamId      string                 `protobuf:"bytes,2,opt,name=stream_id,json=streamId,proto3" json:"stream_id,omitempty"`
 	Seq           int64                  `protobuf:"varint,3,opt,name=seq,proto3" json:"seq,omitempty"`
 	Type          string                 `protobuf:"bytes,4,opt,name=type,proto3" json:"type,omitempty"`
-	Payload       map[string]string      `protobuf:"bytes,5,rep,name=payload,proto3" json:"payload,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"` // برای سادگی فعلاً رشته، بعداً می‌تونیم Type-safe کنیم
+	PayloadJson   string                 `protobuf:"bytes,5,opt,name=payload_json,json=payloadJson,proto3" json:"payload_json,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GameEvent) Reset() {
 	*x = GameEvent{}
-	mi := &file_angel_proto_msgTypes[4]
+	mi := &file_angel_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -304,7 +230,7 @@ func (x *GameEvent) String() string {
 func (*GameEvent) ProtoMessage() {}
 
 func (x *GameEvent) ProtoReflect() protoreflect.Message {
-	mi := &file_angel_proto_msgTypes[4]
+	mi := &file_angel_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -317,7 +243,7 @@ func (x *GameEvent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GameEvent.ProtoReflect.Descriptor instead.
 func (*GameEvent) Descriptor() ([]byte, []int) {
-	return file_angel_proto_rawDescGZIP(), []int{4}
+	return file_angel_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *GameEvent) GetEventId() string {
@@ -348,11 +274,11 @@ func (x *GameEvent) GetType() string {
 	return ""
 }
 
-func (x *GameEvent) GetPayload() map[string]string {
+func (x *GameEvent) GetPayloadJson() string {
 	if x != nil {
-		return x.Payload
+		return x.PayloadJson
 	}
-	return nil
+	return ""
 }
 
 type ErrorMsg struct {
@@ -365,7 +291,7 @@ type ErrorMsg struct {
 
 func (x *ErrorMsg) Reset() {
 	*x = ErrorMsg{}
-	mi := &file_angel_proto_msgTypes[5]
+	mi := &file_angel_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -377,7 +303,7 @@ func (x *ErrorMsg) String() string {
 func (*ErrorMsg) ProtoMessage() {}
 
 func (x *ErrorMsg) ProtoReflect() protoreflect.Message {
-	mi := &file_angel_proto_msgTypes[5]
+	mi := &file_angel_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -390,7 +316,7 @@ func (x *ErrorMsg) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ErrorMsg.ProtoReflect.Descriptor instead.
 func (*ErrorMsg) Descriptor() ([]byte, []int) {
-	return file_angel_proto_rawDescGZIP(), []int{5}
+	return file_angel_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ErrorMsg) GetCode() string {
@@ -411,34 +337,30 @@ var File_angel_proto protoreflect.FileDescriptor
 
 const file_angel_proto_rawDesc = "" +
 	"\n" +
-	"\vangel.proto\x12\x05angel\"\xc8\x01\n" +
+	"\vangel.proto\x12\x05angel\"}\n" +
 	"\tClientMsg\x12\x12\n" +
 	"\x04type\x18\x01 \x01(\tR\x04type\x12\x0e\n" +
 	"\x02id\x18\x02 \x01(\tR\x02id\x12\x17\n" +
 	"\aroom_id\x18\x03 \x01(\tR\x06roomId\x12\x10\n" +
-	"\x03rev\x18\x04 \x01(\x03R\x03rev\x125\n" +
-	"\fmove_payload\x18\x05 \x01(\v2\x12.angel.MovePayloadR\vmovePayload\x125\n" +
-	"\fchat_payload\x18\x06 \x01(\v2\x12.angel.ChatPayloadR\vchatPayload\"#\n" +
-	"\vMovePayload\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\x05R\x05token\"!\n" +
-	"\vChatPayload\x12\x12\n" +
-	"\x04text\x18\x01 \x01(\tR\x04text\"\xb2\x01\n" +
+	"\x03rev\x18\x04 \x01(\x03R\x03rev\x12!\n" +
+	"\fpayload_json\x18\x05 \x01(\tR\vpayloadJson\"\x88\x02\n" +
 	"\tServerMsg\x12\x12\n" +
 	"\x04type\x18\x01 \x01(\tR\x04type\x12\x17\n" +
 	"\aroom_id\x18\x02 \x01(\tR\x06roomId\x12\x17\n" +
 	"\agame_id\x18\x03 \x01(\tR\x06gameId\x12\x10\n" +
 	"\x03rev\x18\x04 \x01(\x03R\x03rev\x12&\n" +
 	"\x05event\x18\x05 \x01(\v2\x10.angel.GameEventR\x05event\x12%\n" +
-	"\x05error\x18\x06 \x01(\v2\x0f.angel.ErrorMsgR\x05error\"\xde\x01\n" +
+	"\x05error\x18\x06 \x01(\v2\x0f.angel.ErrorMsgR\x05error\x12\x1d\n" +
+	"\n" +
+	"state_json\x18\a \x01(\tR\tstateJson\x12\x12\n" +
+	"\x04from\x18\b \x01(\tR\x04from\x12!\n" +
+	"\fpayload_json\x18\t \x01(\tR\vpayloadJson\"\x8c\x01\n" +
 	"\tGameEvent\x12\x19\n" +
 	"\bevent_id\x18\x01 \x01(\tR\aeventId\x12\x1b\n" +
 	"\tstream_id\x18\x02 \x01(\tR\bstreamId\x12\x10\n" +
 	"\x03seq\x18\x03 \x01(\x03R\x03seq\x12\x12\n" +
-	"\x04type\x18\x04 \x01(\tR\x04type\x127\n" +
-	"\apayload\x18\x05 \x03(\v2\x1d.angel.GameEvent.PayloadEntryR\apayload\x1a:\n" +
-	"\fPayloadEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"4\n" +
+	"\x04type\x18\x04 \x01(\tR\x04type\x12!\n" +
+	"\fpayload_json\x18\x05 \x01(\tR\vpayloadJson\"4\n" +
 	"\bErrorMsg\x12\x12\n" +
 	"\x04code\x18\x01 \x01(\tR\x04code\x12\x14\n" +
 	"\x05error\x18\x02 \x01(\tR\x05errorB+Z)github.com/angel/angel/internal/wire;wireb\x06proto3"
@@ -455,27 +377,21 @@ func file_angel_proto_rawDescGZIP() []byte {
 	return file_angel_proto_rawDescData
 }
 
-var file_angel_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_angel_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_angel_proto_goTypes = []any{
-	(*ClientMsg)(nil),   // 0: angel.ClientMsg
-	(*MovePayload)(nil), // 1: angel.MovePayload
-	(*ChatPayload)(nil), // 2: angel.ChatPayload
-	(*ServerMsg)(nil),   // 3: angel.ServerMsg
-	(*GameEvent)(nil),   // 4: angel.GameEvent
-	(*ErrorMsg)(nil),    // 5: angel.ErrorMsg
-	nil,                 // 6: angel.GameEvent.PayloadEntry
+	(*ClientMsg)(nil), // 0: angel.ClientMsg
+	(*ServerMsg)(nil), // 1: angel.ServerMsg
+	(*GameEvent)(nil), // 2: angel.GameEvent
+	(*ErrorMsg)(nil),  // 3: angel.ErrorMsg
 }
 var file_angel_proto_depIdxs = []int32{
-	1, // 0: angel.ClientMsg.move_payload:type_name -> angel.MovePayload
-	2, // 1: angel.ClientMsg.chat_payload:type_name -> angel.ChatPayload
-	4, // 2: angel.ServerMsg.event:type_name -> angel.GameEvent
-	5, // 3: angel.ServerMsg.error:type_name -> angel.ErrorMsg
-	6, // 4: angel.GameEvent.payload:type_name -> angel.GameEvent.PayloadEntry
-	5, // [5:5] is the sub-list for method output_type
-	5, // [5:5] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	2, // 0: angel.ServerMsg.event:type_name -> angel.GameEvent
+	3, // 1: angel.ServerMsg.error:type_name -> angel.ErrorMsg
+	2, // [2:2] is the sub-list for method output_type
+	2, // [2:2] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_angel_proto_init() }
@@ -489,7 +405,7 @@ func file_angel_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_angel_proto_rawDesc), len(file_angel_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
