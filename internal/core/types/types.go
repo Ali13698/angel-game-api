@@ -45,6 +45,12 @@ type Command struct {
 	Version uint64 `json:"version,omitempty"`
 }
 
+type GameResult struct {
+	WinnerID UserID
+	LoserID  UserID
+	IsDraw   bool
+}
+
 type State interface {
 	Version() uint64
 	Clone() State
@@ -59,6 +65,7 @@ type GameHandler interface {
 	OnPlayerLeft(s State, id UserID) (State, []Event)
 	Tick(s State, now time.Time) (State, []Event)
 	IsTerminal(s State) bool
+	GetResult(s State) GameResult
 }
 
 // Game نام قدیمی رابط GameHandler است؛ برای سازگاری موقت.

@@ -23,6 +23,7 @@ import (
 	"github.com/angel/angel/internal/registry"
 	"github.com/angel/angel/internal/storage"
 	"github.com/angel/angel/internal/web"
+	"github.com/angel/angel/internal/wire"
 )
 
 func main() {
@@ -55,6 +56,7 @@ func main() {
 	auth.Init()
 
 	h := hub.New(reg)
+	h.StatsRecorder = wire.NewStatsAdapter()
 	br := bridge.New()
 	h.SetBridge(br)
 

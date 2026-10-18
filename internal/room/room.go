@@ -68,6 +68,10 @@ type Transport interface {
 	SignalBackpressure(code string, reason string)
 }
 
+type StatsRecorder interface {
+	RecordMatch(ctx context.Context, userID types.UserID, gameID string, isWin bool, isDraw bool) error
+}
+
 type Config struct {
 	ID                types.RoomID
 	GameID            types.GameID
@@ -76,6 +80,7 @@ type Config struct {
 	Players           []types.UserID
 	InboxSize         int
 	CountdownDuration time.Duration
+	StatsRecorder     StatsRecorder
 }
 
 type Request struct {
@@ -478,6 +483,19 @@ func (r *Room) checkTerminal() {
 	st, _ := r.GetState()
 	if r.cfg.Game.IsTerminal(st) {
 		r.advancePhase(PhaseFinished, time.Now())
+		if r.cfg.StatsRecorder != nil {
+			res := r.cfg.Game.GetResult(st)
+			go func() {
+				ctx := context.Background()
+				if res.IsDraw {
+					_ = r.cfg.StatsRecorder.RecordMatch(ctx, res.WinnerID, string(r.cfg.GameID), false, true)
+					_ = r.cfg.StatsRecorder.RecordMatch(ctx, res.LoserID, string(r.cfg.GameID), false, true)
+				} else {
+					_ = r.cfg.StatsRecorder.RecordMatch(ctx, res.WinnerID, string(r.cfg.GameID), true, false)
+					_ = r.cfg.StatsRecorder.RecordMatch(ctx, res.LoserID, string(r.cfg.GameID), false, false)
+				}
+			}()
+		}
 	}
 }
 

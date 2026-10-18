@@ -36,6 +36,7 @@ type client struct {
 type Hub struct {
 	reg *registry.Registry
 	br  *bridge.Bridge
+	StatsRecorder room.StatsRecorder
 
 	mu      sync.Mutex
 	clients map[*client]struct{}
@@ -62,6 +63,7 @@ func (h *Hub) OpenRoom(gameID types.GameID, players []types.UserID) (*room.Room,
 		GameID:    gameID,
 		Players:   players,
 		Transport: w,
+		StatsRecorder: h.StatsRecorder,
 	})
 	if err != nil {
 		return nil, err

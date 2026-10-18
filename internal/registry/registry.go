@@ -23,6 +23,7 @@ type Spec struct {
 	GameID    types.GameID
 	Players   []types.UserID
 	Transport room.Transport
+	StatsRecorder room.StatsRecorder
 }
 
 type entry struct {
@@ -96,6 +97,7 @@ func (r *Registry) Open(spec Spec) (*room.Room, error) {
 		GameID:    spec.GameID,
 		Game:      game,
 		Transport: spec.Transport,
+		StatsRecorder: spec.StatsRecorder,
 		Players:   spec.Players,
 	})
 	r.rooms[id] = &entry{rm: rm, cancel: cancel}
