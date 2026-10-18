@@ -127,10 +127,15 @@ function attachEvents() {
   }));
 
   document.getElementById('like-box')?.addEventListener('click', () => {
-      const isLiked = localStorage.getItem('liked_' + currentUser!.id) === 'true';
-      localStorage.setItem('liked_' + currentUser!.id, String(!isLiked));
+      const isLiked = localStorage.getItem('liked_' + currentUser.id) === 'true';
+          localStorage.setItem('liked_' + currentUser.id, 'true');
+          currentUser.likes_count = (currentUser.likes_count || 0) + 1;
+      } else {
+          localStorage.setItem('liked_' + currentUser.id, 'false');
+          currentUser.likes_count = Math.max(0, (currentUser.likes_count || 0) - 1);
+      }
       buildUI();
-  });
+    });
 
   const settingsModal = document.getElementById('settings-modal');
   document.getElementById('btn-open-settings')?.addEventListener('click', () => settingsModal?.classList.add('active'));
