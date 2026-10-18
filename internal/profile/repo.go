@@ -2,10 +2,12 @@ package profile
 
 import (
 	"context"
+	"fmt"
 	"errors"
 	"time"
 
 	"github.com/angel/angel/internal/db"
+	"github.com/jackc/pgx/v5"
 )
 
 type User struct {
@@ -48,7 +50,19 @@ func GetByID(ctx context.Context, id int64) (*User, error) {
 	row := p.QueryRow(ctx, `SELECT id, COALESCE(username,''), COALESCE(first_name,''), COALESCE(game_username,''), COALESCE(display_name,''), COALESCE(avatar,''), COALESCE(photo_url,''), COALESCE(profile_color,'#8b5cf6'), COALESCE(profile_banner,'default'), COALESCE(name_effect,''), COALESCE(name_emoji,''), COALESCE(bio,''), COALESCE(banner_id,''), COALESCE(frame_id,''), COALESCE(hat_id,''), COALESCE(chat_bubble_id,''), COALESCE(badge_id,''), COALESCE(coins,0), COALESCE(gems,0), COALESCE(wins,0), COALESCE(losses,0), COALESCE(level,1), COALESCE(xp,0), COALESCE(likes_count,0), COALESCE(streak_days,0), COALESCE(active_days,0), COALESCE(referral_code,''), COALESCE(referrals_count,0), COALESCE(created_at,0), COALESCE(last_seen,0) FROM users WHERE id = $1`, id)
 	var u User
 	err := row.Scan(&u.ID, &u.Username, &u.FirstName, &u.GameUsername, &u.DisplayName, &u.Avatar, &u.PhotoURL, &u.ProfileColor, &u.ProfileBanner, &u.NameEffect, &u.NameEmoji, &u.Bio, &u.BannerID, &u.FrameID, &u.HatID, &u.ChatBubbleID, &u.BadgeID, &u.Coins, &u.Gems, &u.Wins, &u.Losses, &u.Level, &u.XP, &u.LikesCount, &u.StreakDays, &u.ActiveDays, &u.ReferralCode, &u.ReferralsCount, &u.CreatedAt, &u.LastSeen)
-	if err != nil { return nil, err }
+	if err != nil { 
+		if errors.Is(err, pgx.ErrNoRows) {
+			// Auto-create Guest user
+			guestName := fmt.Sprintf("Guest_%d", id%10000)
+			_, insErr := p.Exec(ctx, `INSERT INTO users (id, game_username, display_name, created_at, last_seen) VALUES ($1, $2, $3, $4, $5)`, id, guestName, guestName, time.Now().Unix(), time.Now().Unix())
+			if insErr != nil {
+				return nil, fmt.Errorf("failed to create guest: %w", insErr)
+			}
+			// Recursive call to fetch the new user
+			return GetByID(ctx, id)
+		}
+		return nil, err 
+	}
 	if u.CreatedAt > 0 { u.AgeDays = int((time.Now().Unix() - u.CreatedAt) / 86400) }
 	return &u, nil
 }
