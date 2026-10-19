@@ -1,56 +1,68 @@
 package wasm
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"unsafe"
+
+	"github.com/tetratelabs/wazero/api"
 )
 
-// GameContext تمام دیتای تزریقی از هسته به بازی را نگه می‌دارد
 type GameContext struct {
-	GameID      string           `json:"game_id"`
-	Players     []Player         `json:"players"`
-	ActiveItems []ShopItem       `json:"active_items"`
-	Rules       GameRules        `json:"rules"`
+	GameID      string     `json:"game_id"`
+	Players     []Player   `json:"players"`
+	ActiveItems []ShopItem `json:"active_items"`
+	Rules       GameRules  `json:"rules"`
 }
 
 type Player struct {
-	ID     string `json:"id"`
-	Name   string `json:"name"`
-	Avatar string `json:"avatar"`
-	IsBot  bool   `json:"is_bot"`
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
 type ShopItem struct {
 	ID     string         `json:"id"`
-	Type   string         `json:"type"` // e.g., "dice_multiplier", "extra_time"
+	Type   string         `json:"type"`
 	Effect map[string]any `json:"effect"`
 }
 
 type GameRules struct {
-	TurnTimeoutSec int `json:"turn_timeout_sec"` // مثلا 10 ثانیه
-	MaxPlayers     int `json:"max_players"`
+	TurnTimeoutSec int `json:"turn_timeout_sec"`
 }
 
-// GameIntent قصد بازیکن برای انجام حرکت
-type GameIntent struct {
-	Action  string         `json:"action"` // e.g., "roll", "move"
-	Payload map[string]any `json:"payload"`
-}
+func CallApply(ctx context.Context, mod api.Module, state string, intent string, gameCtx GameContext) (string, error) {
+	applyFn := mod.ExportedFunction("apply")
+	allocFn := mod.ExportedFunction("allocate")
+	if applyFn == nil || allocFn == nil {
+		return "", fmt.Errorf("wasm: missing apply or allocate function")
+	}
 
-// GameResult خروجی بازی پس از حرکت
-type GameResult struct {
-	NewState string   `json:"new_state"`
-	Events   []string `json:"events"`
-}
+	// Marshal inputs
+	stateB := []byte(state)
+	intentB := []byte(intent)
+	ctxB, _ := json.Marshal(gameCtx)
 
-// BuildInitPayload ساخت JSON برای ارسال به بازی
-func BuildInitPayload(ctx GameContext) string {
-	b, _ := json.Marshal(ctx)
-	return string(b)
-}
+	// Helper to write to guest memory
+	writeMem := func(data []byte) uint64 {
+		res, _ := allocFn.Call(ctx, uint64(len(data)))
+		ptr := uint32(res[0])
+		mod.Memory().Write(ptr, data)
+		return uint64(ptr)
+	}
 
-// MockApply (شبیه‌سازی تست اتصال)
-func MockApply(state string, intent string) (string, error) {
-	// اینجا در آینده به حافظه WASM وصل می‌شویم
-	return fmt.Sprintf("State: %s | Intent: %s", state, intent), nil
+	statePtr := writeMem(stateB)
+	intentPtr := writeMem(intentB)
+	ctxPtr := writeMem(ctxB)
+
+	// Call apply(statePtr, stateLen, intentPtr, intentLen, ctxPtr, ctxLen)
+	res, err := applyFn.Call(ctx, statePtr, uint64(len(stateB)), intentPtr, uint64(len(intentB)), ctxPtr, uint64(len(ctxB)))
+	if err != nil {
+		return "", err
+	}
+
+	// The function returns the pointer to the result string. (For simplicity in test, assuming fixed length or null-terminated)
+	outPtr := uint32(res[0])
+	outBytes, _ := mod.Memory().Read(outPtr, 64) // Read max 64 bytes for test
+	return string(outBytes), nil
 }
