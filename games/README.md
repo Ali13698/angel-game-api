@@ -1,2 +1,2 @@
 # Games Directory
-محل قرارگیری بازی‌های WASM
+محل بازی‌های WASM
