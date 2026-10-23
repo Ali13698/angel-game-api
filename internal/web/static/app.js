@@ -30,10 +30,14 @@
     </div>`}function o(){return`
     <div style="padding: 20px;">
         <h2 style="text-align:center; margin-bottom: 20px;">\u0628\u0627\u0632\u06CC\u200C\u0647\u0627\u06CC \u0622\u0646\u0644\u0627\u06CC\u0646</h2>
-        <div style="display: grid; grid-template-columns: 1fr; gap: 15px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
             <div class="game-card" onclick="window.joinGame('ludo')" style="background: var(--inner-card-bg); padding: 20px; border-radius: 12px; text-align: center; cursor: pointer;">
                 <div style="font-size: 50px; margin-bottom: 10px;">\u{1F3B2}</div>
                 <div style="font-size: 16px; font-weight: bold;">\u0645\u0646\u0686 (Ludo)</div>
+            </div>
+            <div class="game-card" style="background: var(--inner-card-bg); padding: 20px; border-radius: 12px; text-align: center; opacity: 0.5;">
+                <div style="font-size: 50px; margin-bottom: 10px;">\u{1F3B1}</div>
+                <div style="font-size: 16px; font-weight: bold;">\u0628\u06CC\u0644\u06CC\u0627\u0631\u062F (\u0628\u0647\u200C\u0632\u0648\u062F\u06CC)</div>
             </div>
         </div>
     </div>`}var a=null,n=!1;function c(){let t=new URLSearchParams(location.search).get("id");if(t)return parseInt(t,10);let i=window.Telegram?.WebApp;return Number(i?.initDataUnsafe?.user?.id)||1001}function d(e,t){return`
