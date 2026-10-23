@@ -1,66 +1,18 @@
-function getUserId() {
-    let t = new URLSearchParams(location.search).get("id");
-    if (t && /^\d+$/.test(t)) return parseInt(t, 10);
-    let e = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
-    return e ? Number(e) : 1001;
-}
-
-function renderRoom() {
-    let t = document.getElementById("app");
-    if (!t || document.getElementById("gameRoom")) return;
-    
-    t.insertAdjacentHTML("beforeend", `
-    <div class="game-room active" id="gameRoom" style="padding:20px; color:white;">
-      <div style="background: #22c55e; color: white; padding: 10px; text-align: center; font-weight: bold; border-radius:8px; margin-bottom:15px;">
-        ✅ اتصال به هسته Go برقرار شد!
+(()=>{function d(t,n){console.error(`[ERROR] ${t}`,n||"")}function c(){let t=new URLSearchParams(location.search).get("id");if(t&&/^\d+$/.test(t))return parseInt(t,10);let e=window.Telegram?.WebApp?.initDataUnsafe?.user?.id;return e?Number(e):1001}function o(t){return document.getElementById(t)}function l(){let t=o("app");!t||o("gameRoom")||(t.insertAdjacentHTML("beforeend",`
+    <div class="game-room active" id="gameRoom">
+      <div style="background: #22c55e; color: white; padding: 10px; text-align: center; font-weight: bold; font-size: 14px; z-index: 9999;">
+        \u2705 \u0627\u062A\u0635\u0627\u0644 \u0628\u0647 \u0647\u0633\u062A\u0647 Go \u0628\u0631\u0642\u0631\u0627\u0631 \u0634\u062F! (\u0646\u0633\u062E\u0647 \u0628\u06CC\u0644\u062F \u062E\u0648\u062F\u06A9\u0627\u0631: v1.0.5)
       </div>
-      <div class="game-header" style="display:flex; justify-content:space-between; margin-bottom:15px;">
-        <button id="closeRoomBtn" style="background:#ef4444; border:none; color:white; padding:5px 10px; border-radius:5px;">خروج</button>
-        <div id="roomStatus">در حال ساخت اتاق...</div>
+      <div class="game-header">
+        <button id="closeRoomBtn" style="background:none;border:none;color:white;">\u062E\u0631\u0648\u062C</button>
+        <div id="roomStatus">\u062F\u0631 \u062D\u0627\u0644 \u0633\u0627\u062E\u062A \u0627\u062A\u0627\u0642...</div>
       </div>
-      <div class="board-area" style="background:#1c2028; height:200px; display:flex; align-items:center; justify-content:center; border-radius:8px;">
-        <div id="gameStateView">در انتظار شروع...</div>
+      <div class="board-area"><div id="gameStateView">\u062F\u0631 \u0627\u0646\u062A\u0638\u0627\u0631 \u0634\u0631\u0648\u0639...</div></div>
+      <div class="chat-area">
+        <div class="chat-messages" id="chatMsgs"></div>
+        <div class="chat-input-area">
+          <input type="text" id="chatInput" placeholder="\u067E\u06CC\u0627\u0645..." />
+          <button id="sendChatBtn">\u0627\u0631\u0633\u0627\u0644</button>
+        </div>
       </div>
-    </div>`);
-    
-    document.getElementById("closeRoomBtn")?.addEventListener("click", () => {
-        document.getElementById("gameRoom")?.remove();
-    });
-}
-
-async function joinGame(gameId) {
-    let userId = getUserId();
-    if (!userId) return alert("ابتدا وارد شوید");
-    
-    renderRoom();
-    let statusEl = document.getElementById("roomStatus");
-    
-    try {
-        let res = await fetch("/rooms", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({game_id: gameId, players: [userId.toString()]})
-        });
-        
-        if (!res.ok) throw new Error(await res.text());
-        let data = await res.json();
-        
-        if (statusEl) statusEl.innerText = `اتاق: ${data.room_id}`;
-        
-        window.initWS(userId, (msg) => {
-            console.log("Server Msg:", msg);
-            if (msg.type === 'joined') {
-                document.getElementById("gameStateView").innerText = "بازی شروع شد!";
-            }
-        });
-
-        setTimeout(() => {
-            if (window.sendIntent) window.sendIntent("join", { room_id: data.room_id });
-        }, 500);
-
-    } catch (err) {
-        if (statusEl) statusEl.innerText = `خطا: ${err.message}`;
-    }
-}
-
-window.joinGame = joinGame;
+    </div>`),o("closeRoomBtn")?.addEventListener("click",()=>o("gameRoom")?.remove()),o("sendChatBtn")?.addEventListener("click",a),o("chatInput")?.addEventListener("keypress",n=>{n.key==="Enter"&&a()}))}function a(){let t=o("chatInput"),n=t?.value.trim();if(!n)return;let e=window.sendIntent;typeof e=="function"?(e("chat",{text:n}),t.value=""):d("sendIntent \u062F\u0631 \u062F\u0633\u062A\u0631\u0633 \u0646\u06CC\u0633\u062A")}async function u(t){let n=c();if(!n){alert("\u0627\u0628\u062A\u062F\u0627 \u0648\u0627\u0631\u062F \u0634\u0648\u06CC\u062F");return}l();let e=o("roomStatus");try{let i=await fetch("/rooms",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({game_id:t,players:[n.toString()]})});if(!i.ok)throw new Error(await i.text());let r=await i.json();e&&(e.innerText=`\u0627\u062A\u0627\u0642: ${r.room_id}`),setTimeout(()=>{let s=window.sendIntent;typeof s=="function"&&s("join",{room_id:r.room_id})},500)}catch(i){e&&(e.innerText=`\u062E\u0637\u0627: ${i.message}`)}}window.joinGame=u;window.sendChat=a;})();
