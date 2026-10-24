@@ -1,0 +1,16 @@
+name: Reset to Safe Commit
+on:
+  workflow_dispatch:
+jobs:
+  reset:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Reset and Force Push
+        run: |
+          git reset --hard 8c65136
+          git push origin main --force
