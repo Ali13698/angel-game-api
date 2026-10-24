@@ -1,4 +1,4 @@
-name: Force Restore to 5589a8e
+name: Revert Code to 5589a8e
 on:
   workflow_dispatch:
 
@@ -10,18 +10,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Reset and Push (Skipping .github)
+      - name: Restore only code files
         run: |
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
           
-          # 1. برگرداندن تمام فایل‌های پروژه به نسخه 5589a8e
-          git checkout 5589a8e -- .
+          # 🛠️ برگرداندن فقط پوشه‌های کد، بدون دست زدن به پوشه .github
+          git checkout 5589a8e -- main.go internal/ web/ games/ cmd/ go.mod go.sum
           
-          # 2. خارج کردن پوشه .github از تغییرات (تا گیت‌هاب خطای دسترسی ندهد)
-          git reset .github
-          git checkout .github
-          
-          # 3. کامیت و پوش
+          # کامیت و پوش
           git commit -m "Restore code to 5589a8e (ignoring workflows) [skip ci]" || true
           git push origin main
