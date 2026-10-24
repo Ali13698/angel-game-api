@@ -14,12 +14,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Restore Files from 8c65136
+      - name: Restore Files from 5589a8e
         run: |
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
-          # 🛠️ جادوی این خط: برگرداندن همه فایل‌ها به جز پوشه .github (برای جلوگیری از خطای دسترسی)
-          git checkout 8c65136 -- . ':!.github'
+          # 🛠️ برگرداندن همه فایل‌ها به نسخه 5589a8e
+          git checkout 5589a8e -- .
+          # 🛠️ دست نزدن به پوشه اکشن‌ها برای جلوگیری از خطای دسترسی گیت‌هاب
+          git reset HEAD .github
+          git checkout .github
           git add .
-          git commit -m "Restored files to 8c65136 [skip ci]" || true
+          git commit -m "Restore to 5589a8e [skip ci]" || true
           git push origin main
