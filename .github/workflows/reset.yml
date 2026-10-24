@@ -1,0 +1,28 @@
+name: Safe Revert History
+
+on:
+  workflow_dispatch:
+
+jobs:
+  revert:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+
+      - name: Revert to specific commit
+        run: |
+          # 🛠️ بازگردانی تمام کامیت‌های بعد از 8c65136
+          git revert --no-commit 8c65136..HEAD || true
+          git commit -m "Revert to 8c65136 [skip ci]" || true
+          git push origin main
