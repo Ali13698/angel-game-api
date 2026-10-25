@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>منچ ساده</title>
+<style>
+  body { background: #0F0F23; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+  #status { font-size: 20px; color: #ffd400; font-weight: bold; }
+  .version-banner { background: #22c55e; color: white; padding: 10px; text-align: center; font-weight: bold; width: 100%; position: absolute; top: 0; left: 0; z-index: 9999; }
+</style>
+</head>
+<body>
+  <div class="version-banner">منچ ساده (نسخه 6.0)</div>
+  
+  <h1 style="margin-top: 50px;">منچ ساده (تستی)</h1>
+  <div id="status">در حال اتصال...</div>
+  <button onclick="window.__rollDice()" style="margin-top:20px; padding: 15px 40px; font-size: 18px; border-radius: 10px; background: #3b82f6; color: white; border: none; cursor: pointer; font-weight: bold;">🎲 پرتاب تاس</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/protobufjs@7.2.6/dist/protobuf.min.js"></script>
+  <script src="net.js?v=6000"></script>
+  <script src="ludo.js?v=6000"></script>
+</body>
+</html>
