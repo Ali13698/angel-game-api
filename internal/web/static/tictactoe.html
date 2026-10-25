@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>دوز آنجل</title>
+<style>
+  body { background: #0F0F23; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+  #board { display: grid; grid-template-columns: repeat(3, 80px); gap: 5px; background: #1E1E38; padding: 10px; border-radius: 10px; }
+  .cell { width: 80px; height: 80px; background: #2A2A4A; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: bold; cursor: pointer; border-radius: 8px; }
+  .cell:hover { background: #3A3A5A; }
+  .x { color: #ff5267; }
+  .o { color: #4b9dff; }
+  #status { margin-top: 20px; font-size: 20px; color: #ffd400; }
+  .version-banner { background: #ef4444; color: white; padding: 10px; text-align: center; font-weight: bold; width: 100%; position: absolute; top: 0; left: 0; z-index: 9999; }
+</style>
+</head>
+<body>
+  <!-- ✅ نشانه بصری برای تست نسخه جدید -->
+  <div class="version-banner">نسخه جدید دوز (v3.0) - سیستم تایمر و Minimax</div>
+  
+  <h1 style="margin-top: 50px;">بازی دوز</h1>
+  <div id="status">در حال اتصال...</div>
+  <div id="board"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/protobufjs@7.2.6/dist/protobuf.min.js"></script>
+  <script src="net.js?v=3000"></script>
+  <script src="tictactoe.js?v=3000"></script>
+</body>
+</html>
