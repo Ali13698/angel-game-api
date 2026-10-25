@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>آنجل — منچ</title>
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<link rel="stylesheet" href="ludo.css?v=6200">
+<style>
+  .version-banner { background: #22c55e; color: white; padding: 10px; text-align: center; font-weight: bold; position: absolute; top: 0; left: 0; width: 100%; z-index: 9999; }
+</style>
+</head>
+<body>
+  <div class="version-banner">منچ ساده (نسخه 6.2)</div>
+
+<div class="app" style="margin-top:40px;">
+  <header>
+    <div class="title">آنجل — منچ</div>
+  </header>
+  
+  <div class="board-wrap">
+    <svg id="ludo" viewBox="0 0 600 600" preserveAspectRatio="xMidYMid meet"></svg>
+    <div class="token-layer" id="token-layer"></div>
+  </div>
+
+  <div class="bottom-bar" style="margin-top: 20px;">
+    <div class="turn-info" id="turnText">در حال اتصال به سرور...</div>
+  </div>
+</div>
+
+<div class="dice-area" id="diceArea" onclick="window.__rollDice && window.__rollDice()">
+  <div class="felt-shadow"></div>
+  <div class="cube" id="cube">
+    <div class="face face-1"><div class="pip"></div></div>
+    <div class="face face-2"><div class="pip p1"></div><div class="pip p2"></div></div>
+    <div class="face face-3"><div class="pip p1"></div><div class="pip p2"></div><div class="pip p3"></div></div>
+    <div class="face face-4"><div class="pip p1"></div><div class="pip p2"></div><div class="pip p3"></div><div class="pip p4"></div></div>
+    <div class="face face-5"><div class="pip p1"></div><div class="pip p2"></div><div class="pip p3"></div><div class="pip p4"></div><div class="pip p5"></div></div>
+    <div class="face face-6"><div class="pip p1"></div><div class="pip p2"></div><div class="pip p3"></div><div class="pip p4"></div><div class="pip p5"></div><div class="pip p6"></div></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/protobufjs@7.2.6/dist/protobuf.min.js"></script>
+<script src="net.js?v=6200"></script>
+<script src="ludo.js?v=6200"></script>
+</body>
+</html>
