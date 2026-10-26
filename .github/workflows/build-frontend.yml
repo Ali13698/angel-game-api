@@ -1,0 +1,43 @@
+name: Build PlayCanvas Frontend
+
+on:
+  push:
+    paths:
+      - 'internal/web/static/playcanvas-scripts/**'
+      - 'web/playcanvas/**'
+      - '.github/workflows/build-frontend.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Needed to push the compiled file back to the repo
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies & Build
+        run: |
+          cd web/playcanvas
+          npm install
+          npm run build
+
+      # ROOT CAUSE FIX: Use industry-standard action to prevent push race conditions
+      - name: Commit and Push Built Assets
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Auto-build: Update PlayCanvas dist/main.js"
+          file_pattern: internal/web/static/dist/main.js
+          commit_user_name: "github-actions[bot]"
+          commit_user_email: "github-actions[bot]@users.noreply.github.com"
