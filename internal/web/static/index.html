@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>آنجل | پلتفرم بازی</title>
+    
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <!-- PlayCanvas Engine (CDN - Fast & Cached) -->
+    <script src="https://code.playcanvas.com/playcanvas-stable.min.js"></script>
+    
+    <!-- Protobuf -->
+    <script src="https://cdn.jsdelivr.net/npm/protobufjs@7.2.6/dist/protobuf.min.js"></script>
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <div class="loading-text">در حال اتصال به سرور...</div>
+    </div>
+
+    <!-- PlayCanvas will inject canvas here -->
+    <div id="game-container"></div>
+
+    <!-- Main Entry Point (Compiled TS) -->
+    <script type="module" src="dist/main.js"></script>
+</body>
+</html>
