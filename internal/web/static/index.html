@@ -1,0 +1,19 @@
+<!-- در بخش <script>، تابع initApp را دقیقاً با این کد جایگزین کنید: -->
+<script>
+  async function initApp() {
+    const userId = getUserId();
+    
+    // دریافت پروفایل مستقیماً بدون هیچ فینگرپرینتی
+    try {
+      const res = await fetch(`/api/profile/${userId}`);
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error || "خطای ناشناخته");
+      
+      renderProfile(data.user);
+      renderGames(data.stats || []);
+    } catch (e) {
+      $("username").textContent = `پروفایل یافت نشد`;
+      $("bio").textContent = e.message;
+    }
+  }
+</script>
