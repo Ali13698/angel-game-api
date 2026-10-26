@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>آنجل | پلتفرم بازی</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root {
+    --bg: #0f1115;
+    --card: #1c1e26;
+    --text: #ffffff;
+    --muted: #8b949e;
+    --blue: #2e65f3;
+    --nav-bg: #15171e;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: Tahoma, Arial, sans-serif; padding-bottom: 80px; }
+button { cursor: pointer; border: none; background: transparent; color: inherit; }
+[hidden] { display: none !important; }
+svg { display: block; }
+
+/* Header */
+.header { display: flex; justify-content: flex-end; align-items: center; padding: 16px 20px; height: 64px; }
+.profile-avatar-btn { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; border: 2px solid var(--blue); cursor: pointer; }
+.profile-avatar-btn svg, .profile-avatar-btn img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Screens */
+.screen { padding: 10px; display: none; }
+.screen.active { display: block; }
+
+/* Profile Tab Styles (Reused) */
+.profile-card { background: var(--card); border-radius: 20px; overflow: hidden; padding-bottom: 10px; margin-top: 10px; }
+.cover { height: 178px; position: relative; background: #075022; }
+.cover-art { width: 100%; height: 100%; object-fit: cover; }
+.views { position: absolute; right: 0; top: 0; display: flex; align-items: center; gap: 5px; background: #062310d9; padding: 9px 12px 11px 20px; border-bottom-left-radius: 34px; font-size: 13px; font-weight: bold; }
+.identity { position: relative; text-align: center; margin-top: -44px; }
+.avatar-frame { position: relative; width: 170px; height: 148px; margin: 0 auto; }
+.avatar-photo { position: absolute; width: 116px; height: 116px; border-radius: 50%; left: 27px; top: 13px; overflow: hidden; background: #5d6850; box-shadow: 0 0 25px #0009; }
+.avatar-photo svg { width: 100%; height: 100%; object-fit: cover; }
+.planet { position: absolute; filter: drop-shadow(0 2px 2px #0004); }
+.username-row { display: flex; align-items: center; justify-content: center; gap: 8px; direction: ltr; margin-top: 4px; }
+.username { color: #7867e9; font-size: 24px; font-weight: bold; }
+.bio { position: relative; margin: 24px auto; width: 78%; min-height: 67px; padding: 20px 10px; display: grid; place-items: center; border: 1px solid #432068; border-right: 5px solid #5b2c86; border-left: 4px solid #5b2c86; border-radius: 9px; background: #231738; font-size: 23px; }
+.bio::before { content: "🪐"; position: absolute; bottom: -8px; right: -7px; font-size: 23px; }
+.bio::after { content: "🪷"; position: absolute; top: -10px; left: -8px; font-size: 20px; }
+.metrics { display: grid; grid-template-columns: repeat(3, 1fr); margin: 0 10% 25px; }
+.metric { text-align: center; padding: 2px 5px 8px; }
+.metric + .metric { border-right: 1px solid #aaa; }
+.metric span { display: block; color: var(--muted); font-size: 13px; margin-bottom: 10px; }
+.metric strong { font-size: 19px; font-weight: 500; }
+.wallet { display: flex; justify-content: center; align-items: center; gap: 17px; margin-bottom: 19px; }
+.balance { display: flex; align-items: center; gap: 7px; }
+.currency { font-size: 25px; }
+
+/* Games Grid Styles */
+.games-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 10px; margin-top: 20px; }
+.game-card { background: var(--card); border-radius: 16px; padding: 20px; text-align: center; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
+.game-card:active { transform: scale(0.95); }
+.game-card.ludo { border-color: #8b5cf6; }
+.game-icon { font-size: 50px; margin-bottom: 10px; }
+.game-name { font-weight: bold; font-size: 16px; }
+
+/* Bottom Nav (Matching the image) */
+.bottom-nav {
+    position: fixed; bottom: 0; left: 0; width: 100%; height: 80px; background: var(--nav-bg);
+    display: flex; justify-content: space-around; align-items: center;
+    border-top-left-radius: 24px; border-top-right-radius: 24px; z-index: 100;
+    padding-bottom: env(safe-area-inset-bottom);
+}
+.nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #4b5563; cursor: pointer; font-size: 24px; position: relative; }
+.nav-item svg { width: 28px; height: 28px; stroke: #4b5563; stroke-width: 2; fill: none; transition: 0.2s; }
+.nav-item.active svg { stroke: var(--text); }
+.nav-item.home-btn {
+    background: var(--blue); width: 60px; height: 50px; border-radius: 25px;
+    display: flex; justify-content: center; align-items: center;
+    box-shadow: 0 4px 15px rgba(46, 101, 243, 0.4);
+}
+.nav-item.home-btn svg { stroke: #fff; fill: #fff; }
+.notification-dot { position: absolute; top: 2px; right: 2px; width: 12px; height: 12px; background: #ef4444; border-radius: 50%; border: 2px solid var(--nav-bg); }
+</style>
+</head>
+<body>
+
+<!-- Header (Only Avatar Top Right) -->
+<header class="header">
+    <div class="profile-avatar-btn" onclick="switchTab('profile', document.getElementById('nav-profile'))">
+        <svg viewBox="0 0 160 160"><rect width="160" height="160" fill="#475346"/><circle cx="120" cy="35" r="60" fill="#b6b798" opacity=".25"/><path d="M80 13 C27 10 13 43 25 84 C32 108 54 137 80 147 C104 135 127 109 136 80 C149 37 126 10 80 13Z" fill="#8b9472"/><path d="M34 62 Q62 54 71 88 Q40 102 34 62Z" fill="#07100b" transform="rotate(8 52 77)"/><path d="M127 62 Q99 54 89 88 Q120 102 127 62Z" fill="#07100b" transform="rotate(-8 108 77)"/></svg>
+    </div>
+</header>
+
+<main class="app">
+    <!-- Main Screen is Empty by Default -->
+
+    <!-- Profile Tab -->
+    <section class="screen" id="screen-profile">
+        <div class="profile-card">
+            <div class="cover">
+                <svg class="cover-art" viewBox="0 0 460 178" preserveAspectRatio="xMidYMid slice"><rect width="460" height="178" fill="#075022"/></svg>
+                <div class="views"><span>0</span></div>
+            </div>
+            <div class="identity">
+                <div class="avatar-frame">
+                    <div class="avatar-photo">
+                        <svg viewBox="0 0 160 160"><rect width="160" height="160" fill="#475346"/><path d="M80 13 C27 10 13 43 25 84 C32 108 54 137 80 147 C104 135 127 109 136 80 C149 37 126 10 80 13Z" fill="#8b9472"/><path d="M34 62 Q62 54 71 88 Q40 102 34 62Z" fill="#07100b" transform="rotate(8 52 77)"/><path d="M127 62 Q99 54 89 88 Q120 102 127 62Z" fill="#07100b" transform="rotate(-8 108 77)"/></svg>
+                    </div>
+                </div>
+                <div class="username-row"><span class="username" id="username">...</span></div>
+            </div>
+            <div class="bio" id="bio">...</div>
+            <div class="metrics">
+                <div class="metric"><span>بردها</span><strong id="wins">0</strong></div>
+                <div class="metric"><span>سن</span><strong><b id="days">0</b> روز</strong></div>
+                <div class="metric"><span>هاله</span><strong>🔥 <b id="aura">0</b></strong></div>
+            </div>
+            <div class="wallet">
+                <div class="balance"><span class="currency">🪙</span><strong id="coins">0</strong></div>
+                <div class="balance"><span class="currency">💠</span><strong id="gems">0</strong></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Games Tab -->
+    <section class="screen" id="screen-games">
+        <div class="games-grid">
+            <div class="game-card ludo" onclick="window.location.href='/games/ludo/'">
+                <div class="game-icon">🎲</div>
+                <div class="game-name">منچ فضایی</div>
+            </div>
+            <div class="game-card" style="opacity:0.5">
+                <div class="game-icon">🚧</div>
+                <div class="game-name">به زودی...</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Friends Tab -->
+    <section class="screen" id="screen-friends">
+        <div style="text-align:center; padding:50px; color:#888;">لیست دوستان به زودی...</div>
+    </section>
+    
+    <!-- Rooms Tab -->
+    <section class="screen" id="screen-rooms">
+        <div style="text-align:center; padding:50px; color:#888;">لیست روم‌ها به زودی...</div>
+    </section>
+
+    <!-- Bottom Nav (Matching the Image exactly) -->
+    <nav class="bottom-nav">
+        <!-- Camera (Leftmost in RTL, but image shows it leftmost overall) -->
+        <div class="nav-item" onclick="switchTab('camera', this)" style="position:relative;">
+            <div class="notification-dot"></div>
+            <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="14" rx="3"/><circle cx="12" cy="13" r="3"/><path d="M8 6l2-2h4l2 2"/></svg>
+        </div>
+        
+        <!-- Friends -->
+        <div class="nav-item" onclick="switchTab('friends', this)" id="nav-friends">
+            <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="10" r="2"/><path d="M4 18c0-3 3-5 5-5s5 2 5 5"/><path d="M15 18c0-2 2-3 4-3s3 1 3 3"/></svg>
+        </div>
+        
+        <!-- Gamepad -->
+        <div class="nav-item" onclick="switchTab('games', this)" id="nav-games">
+            <svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="10" rx="5"/><path d="M8 12v2m-1-1h2m6 0h.01M17 14h.01"/></svg>
+        </div>
+        
+        <!-- Headphones -->
+        <div class="nav-item" onclick="switchTab('audio', this)">
+            <svg viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="14" width="4" height="6" rx="1"/><rect x="17" y="14" width="4" height="6" rx="1"/></svg>
+        </div>
+        
+        <!-- Home (Rightmost, active state) -->
+        <div class="nav-item home-btn" onclick="switchTab('home', this)" id="nav-home">
+            <svg viewBox="0 0 24 24"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M9 21V12h6v9"/></svg>
+        </div>
+        
+        <!-- Hidden Profile Nav to activate the avatar button -->
+        <div class="nav-item" onclick="switchTab('profile', this)" id="nav-profile" style="display:none;">
+            <svg></svg>
+        </div>
+    </nav>
+</main>
+
+<script>
+(() => {
+    if (window.Telegram && Telegram.WebApp) { Telegram.WebApp.ready(); Telegram.WebApp.expand(); }
+
+    const $ = id => document.getElementById(id);
+    const fa = value => String(value).replace(/\d/g, d => "۰۱۲۳۴۵۶۷۸۹"[d]);
+
+    function getUserId() {
+        const qs = new URLSearchParams(location.search).get("id");
+        if (qs) return qs;
+        const tgId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+        if (tgId) return String(tgId);
+        return "1001"; 
+    }
+
+    window.switchTab = function(tabName, el) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        
+        const targetScreen = $(`screen-${tabName}`);
+        if (targetScreen) {
+            targetScreen.classList.add('active');
+        }
+        
+        if (el) {
+            el.classList.add('active');
+        }
+
+        // If home is clicked, clear all screens to show empty main panel
+        if (tabName === 'home') {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            el.classList.add('active');
+        }
+    };
+
+    async function fetchProfile() {
+        try {
+            const userId = getUserId();
+            const res = await fetch(`/api/profile/${userId}`);
+            const data = await res.json();
+            if (!res.ok || !data.ok) throw new Error(data.error || "خطا");
+            
+            const user = data.user;
+            $("username").textContent = (user.display_name || user.game_username || "بدون نام");
+            $("bio").textContent = user.bio || "بیوگرافی ثبت نشده";
+            $("wins").textContent = fa(user.wins || 0);
+            $("coins").textContent = fa(user.coins || 0);
+            $("gems").textContent = fa(user.gems || 0);
+            $("days").textContent = fa(user.age_days || 1);
+        } catch (e) {
+            $("username").textContent = "خطا در دریافت پروفایل";
+        }
+    }
+
+    // Default view is empty home (no screen active)
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    $('nav-home').classList.add('active');
+
+    fetchProfile();
+})();
+</script>
+</body>
+</html>
