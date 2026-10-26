@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Angel Lobby</title>
+  <style>
+    body { margin:0; background:#0f1115; color:#fff; font-family:Tahoma; display:flex; flex-direction:column; min-height:100vh; }
+    .header { padding:20px; display:flex; justify-content:space-between; align-items:center; background:#1c2028; }
+    .lobby { padding:20px; display:grid; grid-template-columns:1fr 1fr; gap:15px; }
+    .game-card { background:#1c2028; border-radius:16px; overflow:hidden; cursor:pointer; text-align:center; padding-bottom:15px; transition:0.2s; text-decoration:none; color:white; }
+    .game-card:active { transform:scale(0.97); }
+    .game-banner { height:100px; background:linear-gradient(135deg,#312e81,#6d28d9); display:flex; justify-content:center; align-items:center; font-size:50px; }
+    .game-title { padding:10px; font-weight:bold; }
+    .bottom-nav { position:fixed; bottom:0; width:100%; height:70px; background:#1c2028; display:flex; justify-content:space-around; align-items:center; border-top:1px solid #2a2e38; }
+    .nav-item { font-size:24px; color:#8b949e; cursor:pointer; }
+    .nav-item.active { color:#3b82f6; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div style="font-weight:bold; font-size:20px;">آنجل</div>
+    <div>👤</div>
+  </div>
+  
+  <div class="lobby">
+    <!-- کارت بازی منچ که به مسیر جدید لینک شده است -->
+    <a href="/games/ludo/" class="game-card">
+      <div class="game-banner">🎲</div>
+      <div class="game-title">منچ فضایی</div>
+    </a>
+    <div class="game-card" style="opacity:0.5;">
+      <div class="game-banner" style="background:#333;">🚧</div>
+      <div class="game-title">به زودی...</div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-item">👥</div>
+    <div class="nav-item active">🎮</div>
+    <div class="nav-item">🏠</div>
+    <div class="nav-item">💬</div>
+    <div class="nav-item">📸</div>
+  </div>
+</body>
+</html>
