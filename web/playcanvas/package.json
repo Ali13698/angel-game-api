@@ -1,0 +1,17 @@
+{
+  "name": "angel-playcanvas-client",
+  "version": "2.0.0",
+  "description": "Enterprise PlayCanvas client for Angel Platform",
+  "type": "module",
+  "scripts": {
+    "build": "node esbuild.config.js",
+    "watch": "node esbuild.config.js --watch"
+  },
+  "dependencies": {
+    "protobufjs": "^7.2.6"
+  },
+  "devDependencies": {
+    "esbuild": "^0.20.0",
+    "typescript": "^5.3.3"
+  }
+}
