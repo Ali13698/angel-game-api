@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>منچ فضایی</title>
+<script src="https://cdn.jsdelivr.net/npm/protobufjs@7.5.4/dist/protobuf.min.js"></script>
+<style>
+[hidden]{display:none!important}*{box-sizing:border-box}body{margin:0;background:#202022;color:#fff;font-family:Tahoma,Arial,sans-serif}button,select{font:inherit}button{cursor:pointer;touch-action:manipulation}button:focus-visible,select:focus-visible{outline:3px solid #ffe04c;outline-offset:4px}button:disabled{cursor:default;opacity:.48}.app{max-width:540px;margin:auto;background:#323232;min-height:100dvh;padding:18px 0 24px}.top{display:flex;align-items:center;justify-content:space-between;padding:0 18px}.circle{border:0;border-radius:50%;background:#242424;color:white;width:42px;height:42px;font-size:23px}.brand{direction:ltr;background:#202020;border-radius:12px;padding:9px 15px;font:bold 19px Arial;letter-spacing:1px}.brand span{color:#ffdc4a}.player{display:flex;gap:12px;align-items:center;direction:ltr;padding:22px 27px 16px}.avatar{width:53px;height:53px;border-radius:50%;display:grid;place-items:center;font-size:35px;background:#20262a;border:3px solid transparent;transition:.2s}.active .avatar{border-color:#129aee;box-shadow:0 0 0 4px #148dee33}.name{font:bold 16px Arial}.name::before{content:'●';font-size:14px;color:#7bd52b;margin-right:7px}.sub{color:#b6b6b6;font-size:11px;margin-top:7px}.badge{border-radius:20px;padding:5px 11px;background:#148df0;font-size:12px;margin-top:6px;display:inline-block}.board-frame{padding:13px;background:#fff;border-radius:9px;position:relative;box-shadow:0 5px 25px #0002}.board{display:block;width:100%;height:auto;direction:ltr;touch-action:manipulation}.board .pawn{cursor:default;outline:none}.board .selectable{cursor:pointer}.board .pawn:focus-visible .ring{stroke:#222;stroke-width:4}.ring{fill:none;stroke:transparent;stroke-width:3}.selectable .ring{stroke:#fff7a9;stroke-dasharray:5 3;animation:dash 1.8s linear infinite}.target{fill:#fff7ae;stroke:#827422;stroke-width:1.5;stroke-dasharray:3 3;pointer-events:none}.pawn-number{font:bold 10px Arial;fill:#fff;pointer-events:none}.lower{display:flex;align-items:center;justify-content:space-between;padding:14px 24px 0;gap:12px}.lower .player{padding:0;flex-direction:row-reverse;text-align:right}.controls{display:flex;align-items:center;gap:12px;direction:ltr}.roll{background:#108fec;color:white;border:0;border-radius:9px;min-height:52px;padding:0 19px;font-weight:bold;box-shadow:0 4px 0 #0665a9}.roll:not(:disabled):active{transform:translateY(3px);box-shadow:0 1px 0 #0665a9}.dice{width:54px;height:54px;border:2px solid #c8d8da;border-radius:10px;background:#fff;box-shadow:0 4px 0 #bdc8c9;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:7px;gap:4px}.pip{border-radius:50%;background:#3b3b3b}.rolling{animation:shake .18s infinite}.status{min-height:70px;display:grid;place-items:center;padding:17px 16px 8px;text-align:center;font-size:15px;line-height:1.8}.tip{color:#bbb;text-align:center;font-size:11px;padding:0 18px;line-height:1.9}.toolbar{display:flex;justify-content:center;gap:10px;padding-top:17px}.toolbar button{border:1px solid #5a5a5a;background:#272727;color:#ccc;border-radius:20px;padding:8px 15px;font-size:12px}.log{margin:14px 20px 0;padding:12px;background:#292929;border-radius:12px;color:#9c9c9c;font-size:11px;line-height:1.9;max-height:76px;overflow:auto}.log div:first-child{color:#ddd}dialog{background:#262626;color:#fff;border:1px solid #555;border-radius:20px;width:min(90vw,420px);padding:24px;line-height:1.9}dialog::backdrop{background:#000b;backdrop-filter:blur(5px)}dialog h2{margin:0 0 12px;font-size:20px}dialog p,dialog li{font-size:13px;color:#ddd}dialog ul{padding-right:20px}dialog button{border:0;border-radius:9px;background:#148fec;color:#fff;padding:10px 16px;margin:7px 0}dialog select{width:100%;padding:10px;background:#333;color:#fff;border:1px solid #666;border-radius:9px;margin:9px 0}dialog label{font-size:13px}.secondary{background:#444!important}#winTitle{text-align:center;font-size:25px}.confetti{position:fixed;top:-30px;width:9px;height:16px;z-index:10;pointer-events:none;animation:fall 2.7s linear forwards}@keyframes dash{to{stroke-dashoffset:32}}@keyframes shake{50%{transform:rotate(12deg) translateY(-3px)}}@keyframes fall{to{transform:translateY(110vh) rotate(700deg)}}@media(max-width:360px){.lower{padding:12px}.controls{gap:8px}.roll{padding:0 10px;font-size:13px}.avatar{width:44px;height:44px}.name{font-size:14px}.board-frame{padding:9px}}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.confetti{display:none}}
+</style>
+</head>
+<body>
+<main class="app">
+ <header class="top"><button class="circle" id="settingsButton" aria-label="تنظیمات" onclick="history.back()">⋮</button><div class="brand"><span>★</span> SPACE LUDO</div><button class="circle" id="helpButton" aria-label="راهنما">?</button></header>
+ <section class="player" id="bluePlayer"><div class="avatar">👤</div><div><div class="name" id="blueName">PLAYER 2 · BLUE</div><div class="sub" id="blueScore">آبی · ۰ از ۴ رسیده</div><span class="badge" id="blueTurn" hidden>نوبت حریف</span></div></section>
+ <div class="board-frame"><svg class="board" id="board" viewBox="0 0 550 550" xmlns="http://www.w3.org/2000/svg"><g id="ground"></g><g id="targets"></g><g id="pieces"></g></svg></div>
+ <section class="lower"><div class="controls"><button class="roll" id="roll">تاس بریز</button><div class="dice" id="dice" role="img"><i class="pip" style="grid-area:2/2"></i></div></div><div class="player" id="greenPlayer"><div class="avatar">👽</div><div><div class="name">Tired69 · YOU</div><div class="sub" id="greenScore">سبز · ۰ از ۴ رسیده</div><span class="badge" id="greenTurn">نوبت تو</span></div></div></section>
+ <div class="status" id="status" role="status" aria-live="polite"></div>
+ <div class="toolbar"><button id="soundButton" aria-pressed="false">♪ صدا: خاموش</button></div>
+</main>
+<dialog id="help"><h2>راهنمای بازی 🎲</h2><p>در نوبت خود تاس بریز و مهره درخشان را انتخاب کن.</p><button data-close="help">فهمیدم</button></dialog>
+<dialog id="errorDialog"><h2>خطا در ارتباط</h2><p id="errorText">ارتباط با سرور برقرار نشد.</p><button onclick="location.reload()">تلاش مجدد</button></dialog>
+
+<script>
+// Network bridge (Adjusted paths for the /games/ludo/ location)
+const Network = {
+ config: { endpoint: 'wss://game.nomi98.com/ws', protoUrl: '/proto/angel.proto', userId: '1', mySeat: 1 },
+ ws: null, root: null, ClientMsg: null, ServerMsg: null, currentRev: 0n, connected: false, pendingMessages: 0, queue: Promise.resolve(),
+ get busy(){return this.pendingMessages > 0;},
+ async init(){
+  try {
+   window.NetworkEvents.onConnection(false, 'در حال اتصال...');
+   this.root = await protobuf.load(this.config.protoUrl);
+   this.ClientMsg = this.root.lookupType('angel.ClientMsg');
+   this.ServerMsg = this.root.lookupType('angel.ServerMsg');
+   this.payloadTypes = { 'ludo.rolled': this.root.lookupType('angel.RolledPayload'), 'ludo.moved': this.root.lookupType('angel.MovedPayload'), 'turn_changed': this.root.lookupType('angel.TurnPayload') };
+   this.connect();
+  } catch(error){
+    this.fail('بارگذاری پروتکل یا اتصال ناموفق بود.');
+  }
+ },
+ connect(){
+  const url = new URL(this.config.endpoint);
+  url.searchParams.set('user', this.config.userId);
+  this.ws = new WebSocket(url);
+  this.ws.binaryType = 'arraybuffer';
+  this.ws.onopen = () => {
+   this.connected = true;
+   window.NetworkEvents.onConnection(true, 'متصل شد؛ در حال ورود به اتاق...');
+   this.send('join', { room_id: 'room_1', game_id: 'ludo' });
+  };
+  this.ws.onclose = () => { this.connected = false; window.NetworkEvents.onConnection(false, 'ارتباط قطع شد.'); };
+  this.ws.onerror = () => this.fail('خطای اتصال به سرور.');
+  this.ws.onmessage = event => {
+   if(!(event.data instanceof ArrayBuffer))return;
+   this.pendingMessages++; window.NetworkEvents.onBusy();
+   this.queue = this.queue.then(() => this.receive(event.data)).catch(error => console.error(error)).finally(() => {this.pendingMessages--;window.NetworkEvents.onBusy();});
+  };
+ },
+ async receive(buffer){
+  if(!this.connected)return;
+  const decoded = this.ServerMsg.decode(new Uint8Array(buffer));
+  const msg = this.ServerMsg.toObject(decoded, {enums:String, longs:String, bytes:Uint8Array});
+  if(msg.error){window.NetworkEvents.onError(String(msg.error.error || 'درخواست رد شد.'));return;}
+  const rev = BigInt(msg.rev || 0);
+  if(rev > 0n && rev <= this.currentRev)return;
+  for(const ev of msg.events || []){
+   if(!this.connected)return;
+   const type = this.payloadTypes[ev.type]; if(!type)continue;
+   const p = type.decode(ev.payload);
+   if(ev.type === 'ludo.rolled')await window.NetworkEvents.onRolled(p.seat, p.dice);
+   else if(ev.type === 'ludo.moved')await window.NetworkEvents.onMoved(p.seat, p.token, p.pos);
+   else if(ev.type === 'turn_changed')await window.NetworkEvents.onTurnChanged(p.turn);
+  }
+  if(rev > 0n)this.currentRev = rev;
+ },
+ send(type, payload = {}){
+  if(!this.connected || !this.ws || this.ws.readyState !== WebSocket.OPEN){ window.NetworkEvents.onError('اتصال به سرور برقرار نیست.'); return false; }
+  try {
+   const payloadBytes = new TextEncoder().encode(JSON.stringify(payload));
+   const message = {type, id:crypto.randomUUID(), payload:payloadBytes};
+   this.ws.send(this.ClientMsg.encode(this.ClientMsg.create(message)).finish());
+   return true;
+  } catch(error){window.NetworkEvents.onError('ارسال درخواست ناموفق بود.');return false;}
+ },
+ fail(message){ this.connected = false; window.NetworkEvents.onError(message); if(this.ws && this.ws.readyState < WebSocket.CLOSING)this.ws.close(); }
+};
+</script>
+<script>
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id), NS='http://www.w3.org/2000/svg';
+const COLORS=['#1494d4','#49c226'], END=38, ENTRY=35;
+const TRACK=[[0,4],[1,4],[2,4],[3,4],[4,3],[4,2],[4,1],[4,0],[5,0],[6,0],[6,1],[6,2],[6,3],[7,4],[8,4],[9,4],[10,4],[10,5],[10,6],[9,6],[8,6],[7,6],[6,7],[6,8],[6,9],[6,10],[5,10],[4,10],[4,9],[4,8],[4,7],[3,6],[2,6],[1,6],[0,6],[0,5]];
+const START=[1,19];
+const HOME=[[[1.35,1.35],[2.65,1.35],[1.35,2.65],[2.65,2.65]],[[8.35,8.35],[9.65,8.35],[8.35,9.65],[9.65,9.65]]];
+let state={pawns:[[-1,-1,-1,-1],[-1,-1,-1,-1]],turn:null,die:0,phase:'waiting'},epoch=0,sound=false,audio;
+let pendingPhase=null;
+const fa=n=>String(n).replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[d]);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function svg(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const [k,v] of Object.entries(attrs))e.setAttribute(k,v);parent.appendChild(e);return e;}
+function text(parent,x,y,value,size=25,fill='#85a3a0'){const e=svg('text',{x,y,'text-anchor':'middle','dominant-baseline':'central','font-size':size,fill},parent);e.textContent=value;return e;}
+function drawBoard(){
+ const g=$('ground');g.replaceChildren();svg('rect',{width:550,height:550,fill:'#fbffff'},g);
+ for(let y=0;y<11;y++)for(let x=0;x<11;x++)svg('rect',{x:x*50,y:y*50,width:50,height:50,fill:'none',stroke:'#dde5e5','stroke-width':.8},g);
+ const bases=[[0,0,COLORS[0],'#2b76cb'],[7,0,'#ff503d','#e3442d'],[0,7,'#ffdf48','#ffb546'],[7,7,COLORS[1],'#319f3b']];
+ bases.forEach(([x,y,c,inner])=>{svg('rect',{x:x*50,y:y*50,width:200,height:200,fill:c},g);svg('rect',{x:x*50+29,y:y*50+29,width:142,height:142,rx:6,fill:inner},g);[67.5,132.5].forEach(dx=>[67.5,132.5].forEach(dy=>svg('circle',{cx:x*50+dx,cy:y*50+dy,r:25,fill:'#000',opacity:.22},g)));});
+ const cell=(x,y,c)=>svg('rect',{x:x*50,y:y*50,width:50,height:50,fill:c,stroke:'#ffffff70','stroke-width':1},g);
+ for(let i=1;i<4;i++){cell(i,5,COLORS[0]);cell(5,i,'#ff503d');cell(10-i,5,COLORS[1]);cell(5,10-i,'#ffdf48');}
+ [[1,4,COLORS[0]],[6,1,'#ff503d'],[9,6,COLORS[1]],[4,9,'#ffdf48']].forEach(a=>cell(...a));
+ [['200,200 200,350 275,275',COLORS[0]],['200,200 350,200 275,275','#ff503d'],['350,200 350,350 275,275',COLORS[1]],['200,350 350,350 275,275','#ffdf48']].forEach(([points,fill])=>svg('polygon',{points,fill},g));
+ [[4,1],[9,4],[6,9],[1,6]].forEach(([x,y])=>text(g,x*50+25,y*50+25,'☆',35));
+ [[0,5,'➜',COLORS[0]],[5,0,'↓','#da7764'],[10,5,'←','#68b455'],[5,10,'↑','#e4ca4b']].forEach(([x,y,t,c])=>text(g,x*50+25,y*50+25,t,34,c));
+}
+function coordinate(p,i,step=state.pawns[p][i]){
+ if(step<0)return HOME[p][i].map(v=>v*50);
+ if(step<ENTRY)return TRACK[(START[p]+step)%36].map(v=>v*50+25);
+ if(step<END)return [p===0?(step-ENTRY+1)*50+25:(9-(step-ENTRY))*50+25,275];
+ return [p===0?238:312,245+i*20];
+}
+function legal(p,d){return state.pawns[p].map((s,i)=>s<0?(d===6?i:-1):(s<END&&s+d<=END?i:-1)).filter(i=>i>=0);}
+function destination(s,d){return s<0?0:s+d;}
+function human(){return Network.connected&&!Network.busy&&state.turn===Network.config.mySeat;}
+function say(message,record=false){$('status').textContent=message;}
+function playerName(p){return p===1?'سبز':'آبی';}
+function drawPieces(){
+ $('pieces').replaceChildren();$('targets').replaceChildren();
+ const available=state.phase==='choose'&&human()?legal(state.turn,state.die):[];
+ if(available.length)available.forEach(i=>{const pos=coordinate(state.turn,i,destination(state.pawns[state.turn][i],state.die));svg('circle',{cx:pos[0],cy:pos[1],r:17,class:'target'},$('targets'));});
+ const groups=new Map();
+ for(let p=0;p<2;p++)for(let i=0;i<4;i++){const [x,y]=coordinate(p,i),key=x+','+y;if(!groups.has(key))groups.set(key,[]);groups.get(key).push({p,i,x,y});}
+ groups.forEach(group=>group.forEach((piece,j)=>{
+  const {p,i}=piece;let {x,y}=piece;const count=group.length,scale=count>1?.66:1;
+  if(count>1){x+=(j%2-.5)*23;y+=(Math.floor(j/2)-(Math.ceil(count/2)-1)/2)*23;}
+  const selectable=p===state.turn&&available.includes(i);
+  const g=svg('g',{'data-pawn':`${p}-${i}`,transform:`translate(${x} ${y}) scale(${scale})`,class:'pawn'+(selectable?' selectable':''),role:'button'},$('pieces'));
+  svg('circle',{cx:1,cy:8,r:19,fill:'#000',opacity:.22},g);svg('circle',{cx:0,cy:4,r:17,fill:'#b4c9cc'},g);svg('circle',{cx:0,cy:0,r:17,fill:'#f7ffff',stroke:'#d3dfe0','stroke-width':1},g);svg('circle',{cx:0,cy:-2,r:11.7,fill:COLORS[p]},g);text(g,0,-2,fa(i+1),10,'#fff');svg('circle',{cx:0,cy:0,r:22,class:'ring'},g);svg('circle',{cx:0,cy:0,r:23,fill:'transparent'},g);
+  const choose=()=>{if(p===state.turn&&state.phase==='choose'&&human()&&legal(p,state.die).includes(i))move(i);};
+  g.onclick=choose;
+ }));
+}
+function render(){
+ drawPieces();$('roll').disabled=state.phase!=='roll'||!human();$('roll').textContent=human()?'تاس بریز':'منتظر سرور';
+ [0,1].forEach(p=>{const key=p?'green':'blue',active=Network.connected&&state.turn===p;$(key+'Player').classList.toggle('active',active);$(key+'Turn').hidden=!active;$(key+'Turn').textContent=Network.config.mySeat===p?'نوبت تو':'نوبت حریف';$(key+'Score').textContent=`${playerName(p)} · ${fa(state.pawns[p].filter(v=>v===END).length)} از ۴ رسیده`;});
+}
+const pipMap={1:[5],2:[1,9],3:[1,5,9],4:[1,3,7,9],5:[1,3,5,7,9],6:[1,3,4,6,7,9]};
+function showDie(n){$('dice').replaceChildren();pipMap[n].forEach(v=>{const e=document.createElement('i');e.className='pip';e.style.gridArea=`${Math.floor((v-1)/3)+1}/${(v-1)%3+1}`;$('dice').append(e);});}
+function tone(freq=500){if(!sound)return;try{audio??=new(window.AudioContext||window.webkitAudioContext)();audio.resume();const o=audio.createOscillator(),g=audio.createGain();o.type='sine';o.frequency.value=freq;g.gain.setValueAtTime(.055,audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+.12);o.connect(g);g.connect(audio.destination);o.start();o.stop(audio.currentTime+.13);}catch{}}
+async function roll(){
+ if(state.phase!=='roll'||!human())return;
+ const id=++epoch;pendingPhase='roll';state.phase='rolling';render();$('dice').classList.add('rolling');
+ for(let k=0;k<8;k++){ showDie(k%6+1);tone(290+k*35);await sleep(reduced?15:65); if(id!==epoch)return; }
+ Network.send('roll');
+}
+async function move(tokenIndex){
+ if(state.phase!=='choose'||!human()||!legal(state.turn,state.die).includes(tokenIndex))return;
+ pendingPhase='choose';state.phase='moving';render();
+ Network.send('move', {token:tokenIndex});
+}
+window.NetworkEvents={
+ onRolled(seat,dice){ epoch++;pendingPhase=null;state.die=dice;state.turn=seat;showDie(dice);$('dice').classList.remove('rolling');const moves=legal(seat,dice);state.phase=moves.length?'choose':'waiting';say(`${playerName(seat)} ${fa(dice)} آورد`);render(); },
+ async onMoved(seat,tokenIndex,newPos){ epoch++;pendingPhase=null;state.phase='waiting';state.pawns[seat][tokenIndex]=newPos;$('dice').classList.remove('rolling');render();tone(newPos===END?900:newPos<0?180:500); },
+ onTurnChanged(turn){ epoch++;pendingPhase=null;state.turn=turn;state.die=0;state.phase='roll';$('dice').classList.remove('rolling');say(`نوبت ${playerName(turn)}`);render(); },
+ onConnection(connected,message){ epoch++;pendingPhase=null;state.phase='waiting';$('dice').classList.remove('rolling');say(message);render(); },
+ onError(message){ epoch++;$('dice').classList.remove('rolling');if(pendingPhase)state.phase=Network.connected?pendingPhase:'waiting';pendingPhase=null;if(state.die)showDie(state.die);$('errorText').textContent=message;$('errorDialog').showModal();say('خطا رخ داد');render(); },
+ onBusy(){render();}
+};
+$('roll').onclick=()=>{if(human())roll();};
+$('helpButton').onclick=()=>$('help').showModal();
+$('soundButton').onclick=()=>{sound=!sound;$('soundButton').textContent='♪ صدا: '+(sound?'روشن':'خاموش');$('soundButton').setAttribute('aria-pressed',sound);tone();};
+for(const b of document.querySelectorAll('[data-close]'))b.onclick=()=>$(b.dataset.close).close();
+drawBoard();render();
+Network.init();
+})();
+</script>
+</body>
+</html>
