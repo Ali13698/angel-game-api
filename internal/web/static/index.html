@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>آنجل | پلتفرم بازی</title>
+    
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- PlayCanvas CDN (Protobuf is bundled in main.js now, no CDN needed) -->
+    <script src="https://code.playcanvas.com/playcanvas-stable.min.js"></script>
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container"></div>
+
+    <div id="ui-layer">
+        <div id="loading-overlay">
+            <div class="spinner"></div>
+            <div class="loading-text">در حال اتصال به سرور...</div>
+        </div>
+
+        <div id="matchmaker-ui" class="overlay-screen hidden">
+            <div class="glass-panel">
+                <h1 class="title">آنجل</h1>
+                <p class="subtitle">به دنیای بازی‌ها خوش آمدید</p>
+                <button id="btn-quick-match" class="btn-primary">بازی سریع (Quick Match)</button>
+                <button id="btn-create-room" class="btn-secondary">ساخت اتاق خصوصی</button>
+            </div>
+        </div>
+
+        <div id="game-hud" class="hidden">
+            <div id="turn-indicator">در انتظار شروع...</div>
+            <div id="dice-area">
+                <div id="dice-result">0</div>
+                <button id="btn-roll" class="btn-roll disabled">🎲</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- The bundled TypeScript file (includes NetworkClient, GameController, etc.) -->
+    <script type="module" src="dist/main.js"></script>
+</body>
+</html>
