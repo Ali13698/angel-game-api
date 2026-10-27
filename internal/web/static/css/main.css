@@ -1,0 +1,48 @@
+:root {
+    --bg: #0f1115;
+    --card: #1c1e26;
+    --text: #fff;
+    --muted: #8b949e;
+    --blue: #2e65f3;
+    --nav-bg: #15171e;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: Tahoma; padding-bottom: 80px; overflow: hidden; }
+svg { display: block; }
+
+/* Header */
+.app-header { display: flex; justify-content: flex-end; padding: 16px 20px; height: 64px; }
+.avatar-btn { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; border: 2px solid var(--blue); cursor: pointer; }
+.avatar-btn svg { width: 100%; height: 100%; }
+
+/* Screens */
+.screen { padding: 10px; display: none; height: calc(100vh - 144px); overflow-y: auto; }
+.screen.active { display: block; }
+
+/* Profile Module Styles */
+.profile-card { background: var(--card); border-radius: 20px; overflow: hidden; padding-bottom: 20px; }
+.banner { height: 120px; background: linear-gradient(135deg, #312e81, #6d28d9); position: relative; }
+.profile-avatar { width: 80px; height: 80px; border-radius: 50%; border: 4px solid var(--card); background: #374151; position: absolute; bottom: -40px; left: 50%; transform: translateX(-50%); overflow: hidden; }
+.profile-avatar svg { width: 100%; height: 100%; }
+.profile-info { text-align: center; margin-top: 50px; }
+.username { font-size: 22px; font-weight: bold; color: #8b5cf6; margin: 0; }
+.metrics { display: grid; grid-template-columns: repeat(3, 1fr); margin: 20px 10%; }
+.metric { text-align: center; border-right: 1px solid #444; }
+.metric:last-child { border: none; }
+.metric span { display: block; font-size: 12px; color: var(--muted); }
+.metric strong { font-size: 18px; }
+
+/* Games Module Styles */
+.games-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 10px; margin-top: 20px; }
+.game-card { background: var(--card); border-radius: 16px; padding: 20px; text-align: center; border: 2px solid #8b5cf6; cursor: pointer; }
+.game-icon { font-size: 50px; }
+.game-name { font-weight: bold; margin-top: 10px; }
+
+/* Bottom Nav */
+.bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: 80px; background: var(--nav-bg); display: flex; justify-content: space-around; align-items: center; border-top-left-radius: 24px; border-top-right-radius: 24px; z-index: 100; }
+.nav-item { display: flex; flex-direction: column; align-items: center; color: #4b5563; cursor: pointer; position: relative; }
+.nav-item svg { width: 28px; height: 28px; stroke: #4b5563; fill: none; transition: 0.2s; }
+.nav-item.active svg { stroke: #fff; }
+.nav-item.home-btn { background: var(--blue); width: 60px; height: 50px; border-radius: 25px; display: flex; justify-content: center; align-items: center; }
+.nav-item.home-btn svg { stroke: #fff; fill: #fff; }
+.badge-dot { position: absolute; top: 2px; right: 2px; width: 10px; height: 10px; background: #ef4444; border-radius: 50%; border: 2px solid var(--nav-bg); }
