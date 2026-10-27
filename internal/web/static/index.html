@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>آنجل | پلتفرم بازی</title>
+<script src="/js/telegram-web-app.js"></script>
+<style>
+:root{--bg:#0f1115;--card:#1c1e26;--text:#fff;--muted:#8b949e;--blue:#2e65f3}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Tahoma;padding-bottom:80px;overflow:hidden}
+button{cursor:pointer;border:none;background:transparent;color:inherit}
+.header{display:flex;justify-content:flex-end;padding:16px 20px;height:64px}
+.avatar-btn{width:40px;height:40px;border-radius:50%;overflow:hidden;border:2px solid var(--blue);cursor:pointer}
+.avatar-btn svg{width:100%;height:100%}
+.screen{padding:10px;display:none;height:calc(100vh - 144px);overflow-y:auto}.screen.active{display:block}
+.profile-card{background:var(--card);border-radius:20px;padding:20px;text-align:center}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);margin:20px 0}
+.metric{border-right:1px solid #444}.metric:last-child{border:none}
+.games-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;padding:10px;margin-top:20px}
+.game-card{background:var(--card);border-radius:16px;padding:20px;text-align:center;border:2px solid #8b5cf6;cursor:pointer}
+.game-icon{font-size:50px}.game-name{font-weight:bold;margin-top:10px}
+.bottom-nav{position:fixed;bottom:0;left:0;width:100%;height:80px;background:#15171e;display:flex;justify-content:space-around;align-items:center;border-top-left-radius:24px;border-top-right-radius:24px;z-index:100}
+.nav-item{display:flex;flex-direction:column;align-items:center;color:#4b5563;cursor:pointer}
+.nav-item svg{width:28px;height:28px;stroke:#4b5563;fill:none;transition:.2s}
+.nav-item.active svg{stroke:#fff}
+.nav-item.home-btn{background:var(--blue);width:60px;height:50px;border-radius:25px;display:flex;justify-content:center;align-items:center}
+.nav-item.home-btn svg{stroke:#fff;fill:#fff}
+</style>
+</head>
+<body>
+<header class="header"><div class="avatar-btn" onclick="switchTab('profile', document.getElementById('nav-profile'))"><svg viewBox="0 0 160 160"><rect width="160" height="160" fill="#475346"/><path d="M80 13 C27 10 13 43 25 84 C32 108 54 137 80 147 C104 135 127 109 136 80 C149 37 126 10 80 13Z" fill="#8b9472"/><path d="M34 62 Q62 54 71 88 Q40 102 34 62Z" fill="#07100b"/><path d="M127 62 Q99 54 89 88 Q120 102 127 62Z" fill="#07100b"/></svg></div></header>
+<main class="app">
+    <section class="screen" id="screen-profile"><div class="profile-card"><h2 id="username" style="color:#7867e9;margin:0">در حال دریافت...</h2><div class="metrics"><div class="metric"><span style="color:var(--muted)">بردها</span><br><strong id="wins">0</strong></div><div class="metric"><span style="color:var(--muted)">سکه</span><br><strong id="coins">0</strong></div><div class="metric"><span style="color:var(--muted)">الماس</span><br><strong id="gems">0</strong></div></div></div></section>
+    <section class="screen" id="screen-games"><div class="games-grid"><div class="game-card" onclick="window.location.href='/games/ludo/'"><div class="game-icon">🎲</div><div class="game-name">منچ فضایی</div></div></div></section>
+    <section class="screen" id="screen-friends"><div style="text-align:center;margin-top:50px;color:#888;">به زودی...</div></section>
+    <section class="screen" id="screen-rooms"><div style="text-align:center;margin-top:50px;color:#888;">به زودی...</div></section>
+    <nav class="bottom-nav"><div class="nav-item" onclick="switchTab('friends', this)" id="nav-friends"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="10" r="2"/><path d="M4 18c0-3 3-5 5-5s5 2 5 5"/><path d="M15 18c0-2 2-3 4-3s3 1 3 3"/></svg></div><div class="nav-item" onclick="switchTab('games', this)" id="nav-games"><svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="10" rx="5"/><path d="M8 12v2m-1-1h2m6 0h.01M17 14h.01"/></svg></div><div class="nav-item home-btn" onclick="switchTab('home', this)" id="nav-home"><svg viewBox="0 0 24 24"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M9 21V12h6v9"/></svg></div><div class="nav-item" onclick="switchTab('profile', this)" id="nav-profile" style="display:none;"><svg></svg></div></nav>
+</main>
+<script>
+if(window.Telegram&&Telegram.WebApp){Telegram.WebApp.ready();Telegram.WebApp.expand();}
+const $=id=>document.getElementById(id);
+function getUserId(){const qs=new URLSearchParams(location.search).get("id");if(qs)return qs;const tg=window.Telegram?.WebApp?.initDataUnsafe?.user?.id;return tg?String(tg):"1001";}
+window.switchTab=function(name,el){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));if($(`screen-${name}`))$(`screen-${name}`).classList.add('active');if(el)el.classList.add('active');if(name==='home'){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$('nav-home').classList.add('active');}};
+async function fetchProfile(){try{const res=await fetch(`/api/profile/${getUserId()}`);const data=await res.json();if(data.ok){$("username").textContent=data.user.display_name||data.user.game_username;$("wins").textContent=data.user.wins||0;$("coins").textContent=data.user.coins||0;$("gems").textContent=data.user.gems||0;}}catch(e){$("username").textContent="خطا در دریافت";}}
+document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));$('nav-home').classList.add('active');fetchProfile();
+</script>
+</body>
+</html>
