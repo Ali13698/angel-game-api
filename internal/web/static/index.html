@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>آنجل | پلتفرم بازی</title>
+<script src="/js/telegram-web-app.js"></script>
+<link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+<header class="app-header">
+    <div class="avatar-btn" id="header-avatar" onclick="window.Router.switch('profile', this)">
+        <svg viewBox="0 0 160 160"><rect width="160" height="160" fill="#475346"/><path d="M80 13 C27 10 13 43 25 84 C32 108 54 137 80 147 C104 135 127 109 136 80 C149 37 126 10 80 13Z" fill="#8b9472"/><path d="M34 62 Q62 54 71 88 Q40 102 34 62Z" fill="#07100b"/><path d="M127 62 Q99 54 89 88 Q120 102 127 62Z" fill="#07100b"/></svg>
+    </div>
+</header>
+
+<main class="app-container">
+    <section class="screen" id="screen-home"></section>
+    <section class="screen" id="screen-profile"></section>
+    <section class="screen" id="screen-games"></section>
+    <section class="screen" id="screen-friends"></section>
+    <section class="screen" id="screen-rooms"></section>
+    <section class="screen" id="screen-store"></section>
+</main>
+
+<nav class="bottom-nav">
+    <!-- ۱. سمت چپ آخری: صندوق (فروشگاه) -->
+    <div class="nav-item" id="nav-store" onclick="window.Router.switch('store', this)">
+        <div class="badge-dot"></div>
+        <svg viewBox="0 0 24 24"><path d="M3 10h18v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V10z"/><path d="M3 10l2-5h14l2 5"/><path d="M9 21v-6h6v6"/></svg>
+    </div>
+    
+    <!-- ۲. سمت چپ دومی: لیست دوستان و گروه‌ها -->
+    <div class="nav-item" id="nav-friends" onclick="window.Router.switch('friends', this)">
+        <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="10" r="2"/><path d="M4 18c0-3 3-5 5-5s5 2 5 5"/><path d="M15 18c0-2 2-3 4-3s3 1 3 3"/></svg>
+    </div>
+    
+    <!-- ۳. وسطی: بازی‌ها -->
+    <div class="nav-item" id="nav-games" onclick="window.Router.switch('games', this)">
+        <svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="10" rx="5"/><path d="M8 12v2m-1-1h2m6 0h.01M17 14h.01"/></svg>
+    </div>
+    
+    <!-- ۴. سمت راست دومی: روم‌ها (گروه‌های عمومی) -->
+    <div class="nav-item" id="nav-rooms" onclick="window.Router.switch('rooms', this)">
+        <svg viewBox="0 0 24 24"><path d="M8 6a4 4 0 1 1 8 0 4 4 0 0 1-8 0z"/><path d="M4 18a6 6 0 0 1 12 0"/><path d="M16 14a4 4 0 0 1 4 4"/><circle cx="18" cy="8" r="2"/></svg>
+    </div>
+    
+    <!-- ۵. سمت راست اولی: خانه (پنل اصلی) -->
+    <div class="nav-item home-btn" id="nav-home" onclick="window.Router.switch('home', this)">
+        <svg viewBox="0 0 24 24"><path d="M3 10l9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M9 21V12h6v9"/></svg>
+    </div>
+    
+    <!-- دکمه مخفی برای پروفایل -->
+    <div class="nav-item" id="nav-profile" onclick="window.Router.switch('profile', this)" style="display:none;"></div>
+</nav>
+
+<script type="module" src="/modules/lobby/main.js"></script>
+</body>
+</html>
