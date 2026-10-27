@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>منچ فضایی</title>
+<script src="/js/telegram-web-app.js"></script>
+<script src="/js/protobuf.min.js"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#202022;color:#fff;font-family:Tahoma;display:flex;justify-content:center}
+.app{width:100%;max-width:540px;min-height:100vh;background:#323232;padding:18px 0}
+.top{display:flex;justify-content:space-between;padding:0 18px;align-items:center}
+.circle{border:0;border-radius:50%;background:#242424;color:#fff;width:42px;height:42px;font-size:23px}
+.brand{direction:ltr;background:#202020;border-radius:12px;padding:9px 15px;font:bold 19px Arial;color:#fff}
+.board-frame{padding:13px;background:#fff;border-radius:9px;margin-top:20px}
+.board{display:block;width:100%;height:auto}
+.roll{background:#108fec;color:#fff;border:0;border-radius:9px;padding:15px 20px;font-weight:bold;font-size:16px;width:100%;margin-top:20px}
+.status{text-align:center;padding:20px;font-size:16px;color:#ffd400}
+</style>
+</head>
+<body>
+<main class="app">
+    <header class="top">
+        <button class="circle" onclick="window.location.href='/'">⋮</button>
+        <div class="brand">★ SPACE LUDO</div>
+        <button class="circle">?</button>
+    </header>
+    <div class="board-frame">
+        <svg class="board" id="board" viewBox="0 0 550 550" xmlns="http://www.w3.org/2000/svg"><g id="ground"></g><g id="targets"></g><g id="pieces"></g></svg>
+    </div>
+    <button class="roll" id="roll">تاس بریز</button>
+    <div class="status" id="status">در حال اتصال به سرور...</div>
+</main>
+<script src="network.js"></script>
+<script>
+if(window.Telegram&&Telegram.WebApp){Telegram.WebApp.ready();Telegram.WebApp.expand();}
+const $=id=>document.getElementById(id);
+function renderStatus(msg){$('status').textContent=msg;}
+window.NetworkEvents={
+    onConnection(c,m){renderStatus(m);},
+    onError(m){renderStatus("خطا: "+m);},
+    onRolled(s,d){renderStatus("تاس: "+d);},
+    onMoved(s,t,p){},
+    onTurnChanged(t){}
+};
+const NS='http://www.w3.org/2000/svg', svg=document.getElementById('ground');
+const svgNode=document.createElementNS(NS,'rect');
+svgNode.setAttribute('width',550);svgNode.setAttribute('height',550);svgNode.setAttribute('fill','#eee');
+svg.appendChild(svgNode);
+for(let r=0;r<11;r++){for(let c=0;c<11;c++){
+    const rect=document.createElementNS(NS,'rect');
+    rect.setAttribute('x',c*50);rect.setAttribute('y',r*50);rect.setAttribute('width',50);rect.setAttribute('height',50);
+    rect.setAttribute('fill','none');rect.setAttribute('stroke','#ccc');svg.appendChild(rect);
+}}
+if(window.Network) Network.init();
+</script>
+</body>
+</html>
