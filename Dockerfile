@@ -1,3 +1,4 @@
+# Force Rebuild - Version 2
 # مرحله ۱: بیلد کردن برنامه (این مرحله سنگین است اما فقط وقتی go.mod تغییر کند کش می‌شود)
 FROM golang:1.27-alpine AS builder
 WORKDIR /app
