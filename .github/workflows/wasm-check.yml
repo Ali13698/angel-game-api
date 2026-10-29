@@ -1,0 +1,48 @@
+name: WASM Safety Checks
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  wasm-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.27'
+          cache: true
+
+      - name: Check file length
+        shell: bash
+        run: |
+          files=(
+            internal/wasm/loader.go
+            internal/wasm/abi.go
+            internal/wasm/adapter.go
+            internal/wasm/limits_test.go
+          )
+          for file in "${files[@]}"; do
+            count=$(awk 'END { print NR }' "$file")
+            if [ "$count" -gt 150 ]; then
+              echo "::error file=$file::File exceeds 150 lines"
+              exit 1
+            fi
+          done
+
+      - name: Test WASM ABI and execution limits
+        run: go test -race -count=1 -timeout=5m ./internal/wasm
+
+      - name: Check application build
+        run: go build -o "${RUNNER_TEMP}/angel-server" .
