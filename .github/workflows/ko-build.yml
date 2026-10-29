@@ -1,0 +1,42 @@
+name: Build and Push Go Image with ko
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.27'
+          cache: true
+
+      - name: Check application build
+        run: go build -o "${RUNNER_TEMP}/angel-server" .
+
+      - name: Setup ko
+        uses: ko-build/setup-ko@v0.8
+        with:
+          version: v0.19.1
+
+      - name: Build and push image to GHCR
+        run: |
+          ko build . --tags=latest --image-refs=image-refs.txt
+
+      - name: Upload image reference
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-reference
+          path: image-refs.txt
