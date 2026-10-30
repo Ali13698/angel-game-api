@@ -1,0 +1,112 @@
+name: Host Integration Check
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths:
+      - 'scripts/prepare-host.mjs'
+      - 'scripts/prepare-host.test.mjs'
+      - 'internal/wasm/host_package_test.go'
+      - '.github/workflows/host-integration.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: host-integration-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout host
+        uses: actions/checkout@v4
+        with:
+          path: host
+          persist-credentials: false
+
+      - name: Checkout games
+        uses: actions/checkout@v4
+        with:
+          repository: Ali13698/angel-games
+          ref: main
+          path: games-source
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.27'
+          cache: false
+
+      - name: Test packaging and host preparation
+        run: |
+          node --test host/scripts/prepare-host.test.mjs
+          node --test games-source/scripts/package-host.test.mjs
+
+      - name: Build verified games package
+        working-directory: games-source
+        run: |
+          npm install --ignore-scripts
+          npm run protocol:generate
+          npm run test:catalog
+          node scripts/build-games.mjs
+          node scripts/release-catalog.mjs
+          node scripts/package-host.mjs "${RUNNER_TEMP}/host-package"
+
+      - name: Prepare host overlay
+        run: |
+          node host/scripts/prepare-host.mjs \
+            "${RUNNER_TEMP}/host-package" "${RUNNER_TEMP}/host-overlay"
+
+      - name: Apply overlay to disposable CI checkout only
+        working-directory: host
+        run: |
+          # Keep Go source and test fixtures; replace generated artifacts only.
+          find games -type f -name '*.wasm' -delete
+          rm -rf internal/web/static/games
+          cp -R "${RUNNER_TEMP}/host-overlay/games/." games/
+          cp -R "${RUNNER_TEMP}/host-overlay/internal/web/static/." internal/web/static/
+
+      - name: Test imported WASM, ABI and execution limits
+        working-directory: host
+        env:
+          ANGEL_HOST_MANIFEST: ${{ runner.temp }}/host-package/host-manifest.json
+        run: go test -race -count=1 -timeout=5m -v ./internal/wasm
+
+      - name: Build root server with imported games
+        working-directory: host
+        env:
+          CGO_ENABLED: '0'
+        run: |
+          mkdir -p "${RUNNER_TEMP}/host-result"
+          go build -trimpath -o "${RUNNER_TEMP}/host-result/angel-server" .
+
+      - name: Record inputs and checksums
+        run: |
+          result="${RUNNER_TEMP}/host-result"
+          printf 'host=%s\ngames=%s\n' \
+            "$(git -C host rev-parse HEAD)" \
+            "$(git -C games-source rev-parse HEAD)" > "$result/source-revisions.txt"
+          cp "${RUNNER_TEMP}/host-package/host-manifest.json" "$result/"
+          cd "$result"
+          sha256sum angel-server host-manifest.json source-revisions.txt > SHA256SUMS
+          sha256sum --check SHA256SUMS
+          tar -czf "${RUNNER_TEMP}/angel-host-integration.tar.gz" \
+            angel-server host-manifest.json source-revisions.txt SHA256SUMS
+
+      - name: Upload integration build; no deployment
+        uses: actions/upload-artifact@v4
+        with:
+          name: angel-host-integration-${{ github.sha }}
+          path: ${{ runner.temp }}/angel-host-integration.tar.gz
+          if-no-files-found: error
+          retention-days: 14
