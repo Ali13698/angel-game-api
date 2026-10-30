@@ -1,0 +1,147 @@
+name: Host Integration Check
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: host-integration-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+
+    steps:
+      - name: Checkout host
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: host
+          persist-credentials: false
+
+      - name: Checkout games
+        uses: actions/checkout@v4
+        with:
+          repository: Ali13698/angel-games
+          ref: main
+          path: games-source
+          persist-credentials: false
+
+      - name: Checkout panel
+        uses: actions/checkout@v4
+        with:
+          repository: Ali13698/angel-miniapps
+          ref: main
+          path: mini-source
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.27'
+          cache: false
+
+      - name: Check packaging
+        run: |
+          set -euo pipefail
+          node --test host/scripts/prepare-host.test.mjs
+          node --test games-source/scripts/package-host.test.mjs
+
+      - name: Build game package
+        working-directory: games-source
+        run: |
+          set -euo pipefail
+          npm install --ignore-scripts
+          npm run protocol:generate
+          npm run test:catalog
+          node scripts/build-games.mjs
+          test -s ludo-light/dist/assets/lobby.js
+          test -s ludo-light/dist/assets/angel-sdk.js
+          node scripts/release-catalog.mjs
+          node scripts/package-host.mjs "${RUNNER_TEMP}/host-package"
+
+      - name: Prepare overlay
+        run: |
+          set -euo pipefail
+          node host/scripts/prepare-host.mjs \
+            "${RUNNER_TEMP}/host-package" \
+            "${RUNNER_TEMP}/host-overlay"
+
+      - name: Apply game and lobby in disposable checkout
+        working-directory: host
+        run: |
+          set -euo pipefail
+          find games -type f -name '*.wasm' -delete
+          rm -rf internal/web/static/games/ludo-light
+          mkdir -p games internal/web/static/games/ludo
+
+          cp -R "${RUNNER_TEMP}/host-overlay/games/." games/
+          cp -R "${RUNNER_TEMP}/host-overlay/internal/web/static/." \
+            internal/web/static/
+          cp -R ../mini-source/games/ludo/. \
+            internal/web/static/games/ludo/
+
+          test -s internal/web/static/games/ludo/lobby.html
+          test -s internal/web/static/games/ludo/js/lobby.js
+          test -s internal/web/static/games/ludo-light/assets/lobby.js
+
+      - name: Test host packages
+        working-directory: host
+        run: |
+          go test -race -count=1 -timeout=5m \
+            ./internal/hub ./internal/profile
+
+      - name: Test imported WASM
+        working-directory: host
+        env:
+          ANGEL_HOST_MANIFEST: ${{ runner.temp }}/host-package/host-manifest.json
+        run: |
+          go test -race -count=1 -timeout=5m -v ./internal/wasm
+
+      - name: Build integrated server
+        working-directory: host
+        env:
+          CGO_ENABLED: '0'
+        run: |
+          set -euo pipefail
+          mkdir -p "${RUNNER_TEMP}/host-result"
+          go build -trimpath \
+            -o "${RUNNER_TEMP}/host-result/angel-server" .
+
+      - name: Record revisions and checksums
+        run: |
+          set -euo pipefail
+          result="${RUNNER_TEMP}/host-result"
+
+          printf 'host=%s\ngames=%s\nminiapps=%s\n' \
+            "$(git -C host rev-parse HEAD)" \
+            "$(git -C games-source rev-parse HEAD)" \
+            "$(git -C mini-source rev-parse HEAD)" \
+            > "$result/source-revisions.txt"
+
+          cp "${RUNNER_TEMP}/host-package/host-manifest.json" "$result/"
+
+          cd "$result"
+          sha256sum angel-server host-manifest.json source-revisions.txt \
+            > SHA256SUMS
+          sha256sum --check SHA256SUMS
+
+          tar -czf "${RUNNER_TEMP}/angel-host-integration.tar.gz" \
+            angel-server host-manifest.json source-revisions.txt SHA256SUMS
+
+      - name: Upload integrated server
+        uses: actions/upload-artifact@v4
+        with:
+          name: angel-host-integration-${{ github.sha }}
+          path: ${{ runner.temp }}/angel-host-integration.tar.gz
+          if-no-files-found: error
+          retention-days: 14
