@@ -1,0 +1,122 @@
+name: Publish Playtest Image
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+  packages: write
+
+concurrency:
+  group: publish-playtest
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Download integrated server
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          RUN_ID="$(gh run list \
+            --workflow host-integration.yml \
+            --branch main \
+            --status success \
+            --limit 1 \
+            --json databaseId \
+            --jq '.[0].databaseId')"
+
+          if [[ -z "$RUN_ID" || "$RUN_ID" == "null" ]]; then
+            echo "No successful integration build found."
+            exit 1
+          fi
+
+          mkdir -p download image
+
+          gh run download "$RUN_ID" \
+            --pattern 'angel-host-integration-*' \
+            --dir download
+
+          mapfile -t ARCHIVES < <(
+            find download -type f \
+              -name angel-host-integration.tar.gz
+          )
+
+          if [[ "${#ARCHIVES[@]}" -ne 1 ]]; then
+            echo "Expected exactly one server archive."
+            exit 1
+          fi
+
+          tar -xzf "${ARCHIVES[0]}" \
+            -C image \
+            --no-same-owner \
+            angel-server \
+            host-manifest.json \
+            source-revisions.txt \
+            SHA256SUMS
+
+          (
+            cd image
+            sha256sum --check SHA256SUMS
+            chmod 755 angel-server
+          )
+
+          echo "Integration run: $RUN_ID" >> "$GITHUB_STEP_SUMMARY"
+          cat image/source-revisions.txt >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Prepare Dockerfile
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          printf '%s\n' \
+            'FROM alpine:3.22' \
+            'RUN apk add --no-cache ca-certificates curl' \
+            'WORKDIR /app' \
+            'COPY angel-server /app/angel-server' \
+            'COPY host-manifest.json source-revisions.txt /app/' \
+            'ENV PORT=80' \
+            'EXPOSE 80' \
+            'CMD ["/app/angel-server"]' \
+            > image/Dockerfile
+
+      - name: Login to registry
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          printf '%s' "$GH_TOKEN" | docker login ghcr.io \
+            --username "$GITHUB_ACTOR" \
+            --password-stdin
+
+      - name: Build and publish image
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          OWNER="${GITHUB_REPOSITORY_OWNER,,}"
+          IMAGE="ghcr.io/${OWNER}/angel-host-playtest"
+          TAG="run-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          REF="${IMAGE}:${TAG}"
+
+          docker build --pull --tag "$REF" image
+          docker push "$REF"
+
+          {
+            echo "## Deploy this image"
+            echo ""
+            echo "$REF"
+            echo ""
+            echo "Container port: 80"
+            echo "The running server has not been changed."
+          } >> "$GITHUB_STEP_SUMMARY"
