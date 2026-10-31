@@ -3,11 +3,12 @@ export const Network = {
     ws: null,
     ClientMsg: null,
     ServerMsg: null,
+    currentRev: 0, // 🛡️ ردیابی نسخه برای ضد تقلب
+    roomId: 'room_1', // در آینده باید داینامیک شود
     
     async init(onStatusChange) {
         this.onStatus = onStatusChange;
         try {
-            // مسیر پروتکل اصلاح شد: چون فایل در روت static است
             const root = await protobuf.load("../../angel.proto");
             this.ClientMsg = root.lookupType("angel.ClientMsg");
             this.ServerMsg = root.lookupType("angel.ServerMsg");
@@ -26,7 +27,8 @@ export const Network = {
         this.ws.onopen = () => {
             this.connected = true;
             this.onStatus("متصل شد؛ در حال ورود...");
-            this.send('join', { room_id: 'room_1', game_id: 'ludo' });
+            // ارسال دستور Join
+            this.send('join', { room_id: this.roomId, game_id: 'ludo' });
         };
         
         this.ws.onclose = () => {
@@ -41,6 +43,11 @@ export const Network = {
                 const decoded = this.ServerMsg.decode(buffer);
                 const msg = this.ServerMsg.toObject(decoded, { enums: String, longs: String, bytes: Uint8Array });
                 
+                // 🛡️ آپدیت نسخه از سرور
+                if (msg.rev) {
+                    this.currentRev = Number(msg.rev);
+                }
+
                 if (msg.error) {
                     this.onStatus("خطا: " + (msg.error.error || 'نامشخص'));
                     return;
@@ -63,6 +70,8 @@ export const Network = {
             const message = this.ClientMsg.create({
                 type: type,
                 id: crypto.randomUUID(),
+                roomId: this.roomId,        // 🛡️ ارسال اتاق
+                rev: this.currentRev,       // 🛡️ ارسال نسخه برای ضد تقلب
                 payload: payloadBytes
             });
             this.ws.send(this.ClientMsg.encode(message).finish());

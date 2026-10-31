@@ -1,92 +1,52 @@
-// تابع مستقل برای گرفتن آیدی کاربر
-function getUserId() {
-    const qs = new URLSearchParams(window.location.search).get("id");
-    if (qs) return qs;
-    const tg = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
-    return tg ? String(tg) : "1001"; // Fallback for testing
+const gameOrigin = 'https://game.nomi98.com';
+const start = document.getElementById('start-game-btn');
+
+function report(text) {
+  window.startQuickMatch = () => window.alert(text);
+  if (start) start.onclick = window.startQuickMatch;
+
+  let message = document.getElementById('ludo-connection-status');
+  if (!message) {
+    message = document.createElement('p');
+    message.id = 'ludo-connection-status';
+    message.setAttribute('role', 'status');
+    message.style.cssText = 'text-align:center;padding:12px';
+    (document.querySelector('main') || document.body).append(message);
+  }
+
+  message.textContent = text;
 }
 
-const API_BASE = '/api';
+report('در حال بارگذاری لابی منچ…');
 
-document.addEventListener('DOMContentLoaded', async () => {
-    if (window.Telegram && Telegram.WebApp) { Telegram.WebApp.ready(); Telegram.WebApp.expand(); }
-    
-    const userId = getUserId();
-    const favBtn = document.getElementById('fav-btn');
-    const settingsModal = document.getElementById('settings-modal');
-    const createPrivateBtn = document.getElementById('create-private-btn');
-    const startGameBtn = document.getElementById('start-game-btn');
-    const closeModal = document.getElementById('close-modal');
+if (location.origin !== gameOrigin) {
+  const target = new URL('/games/ludo/lobby.html', gameOrigin);
+  const source = new URLSearchParams(location.hash.slice(1));
+  const launch = new URLSearchParams();
 
-    // --- ۱. دریافت آمار زنده ---
-    try {
-        const res = await fetch(`${API_BASE}/profile/${userId}`);
-        const data = await res.json();
-        if (data.ok && data.user) {
-            document.getElementById('live-score').textContent = `امتیاز: ${data.user.xp || 0}`;
-            
-            const ludoStats = data.stats ? data.stats.find(s => s.game_id === 'ludo') : null;
-            if (ludoStats) {
-                document.getElementById('live-games').textContent = `${ludoStats.games_played} بازی`;
-                document.getElementById('live-wins').textContent = `${ludoStats.wins} برد`;
-                document.getElementById('live-rank').textContent = `رتبه: ${ludoStats.level > 5 ? 'Pro' : 'Gamer'}`;
-            } else {
-                document.getElementById('live-games').textContent = `0 بازی`;
-                document.getElementById('live-wins').textContent = `0 برد`;
-                document.getElementById('live-rank').textContent = `رتبه: Newbie`;
-            }
-        }
-    } catch (e) { console.warn("Stats fetch failed", e); }
+  for (const key of [
+    'tgWebAppData',
+    'tgWebAppVersion',
+    'tgWebAppPlatform',
+    'tgWebAppThemeParams',
+    'tgWebAppStartParam',
+  ]) {
+    if (source.has(key)) launch.set(key, source.get(key));
+  }
 
-    // --- ۲. بررسی وضعیت علاقه‌مندی (قلب) ---
-    try {
-        const res = await fetch(`${API_BASE}/favorites`, {
-            headers: { 'Authorization': 'Bearer ' + btoa(userId) }
-        });
-        const data = await res.json();
-        if (data.ok && data.favorites.includes('ludo')) {
-            favBtn.classList.add('active');
-            favBtn.textContent = '♥';
-        }
-    } catch (e) { console.warn("Favorites fetch failed", e); }
+  const app = window.Telegram?.WebApp;
+  if (app?.initData) launch.set('tgWebAppData', app.initData);
 
-    // --- ۳. کلیک روی قلب ---
-    favBtn.addEventListener('click', async () => {
-        try {
-            const res = await fetch(`${API_BASE}/favorites/toggle`, {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + btoa(userId)
-                },
-                body: JSON.stringify({ game_id: 'ludo' })
-            });
-            const data = await res.json();
-            if (data.ok) {
-                const isAdded = data.status === 'added';
-                favBtn.classList.toggle('active', isAdded);
-                favBtn.textContent = isAdded ? '♥' : '♡';
-            }
-        } catch (e) { console.error(e); }
-    });
-
-    // --- ۴. باز و بسته کردن مودال ---
-    createPrivateBtn.addEventListener('click', () => settingsModal.classList.add('active'));
-    closeModal.addEventListener('click', () => settingsModal.classList.remove('active'));
-
-    document.querySelectorAll('.options span').forEach(opt => {
-        opt.addEventListener('click', function() {
-            this.parentElement.querySelectorAll('span').forEach(s => s.classList.remove('active'));
-            this.classList.add('active');
-        });
-    });
-
-    // --- ۵. شروع بازی ---
-    startGameBtn.addEventListener('click', () => {
-        window.location.href = `index.html?mode=private`;
-    });
-});
-
-window.startQuickMatch = function() {
-    window.location.href = `index.html`;
-};
+  target.hash = launch.toString();
+  location.replace(target.href);
+} else {
+  try {
+    await import('/games/ludo-light/assets/lobby.js');
+    document.getElementById('ludo-connection-status')?.remove();
+  } catch (error) {
+    console.error('Ludo lobby failed', error);
+    report(
+      'فایل لابی منچ بارگذاری نشد؛ ایمیج یکپارچه باید روی میزبان منتشر شود.'
+    );
+  }
+}
